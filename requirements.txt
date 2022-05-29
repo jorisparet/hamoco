@@ -1,0 +1,5 @@
+pyautogui
+numpy
+cv2
+mediapipe
+keras
