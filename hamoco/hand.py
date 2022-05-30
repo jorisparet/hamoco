@@ -16,6 +16,13 @@ class Hand:
         THUMB_SIDE = 4
         INDEX_MIDDLE_UP = 5
 
+    # Indices of palm landmarks in mediapipe hands
+    palm_landmarks = [0, 5, 9, 13, 17]
+
+    # Dimension: only look at X and Y for landmarks (discard Z)
+    # If Z must be added at some points, changes will be minor
+    dimension = 2
+
     def __init__(self, pose=None):
         if pose is None:
             self.pose = self.Pose.UNDEFINED
@@ -25,21 +32,19 @@ class Hand:
             if isinstance(pose, int):
                 self.pose = self.Pose(pose)
             if isinstance(pose, str):
-                self.pose = self.Pose[pose]   
+                self.pose = self.Pose[pose]
 
-    def process_landmarks(self, landmarks, keep_z=False):
-        dim = 3 if keep_z else 2
-        # Vectorize
-        landmarks_vector = numpy.array([0.0 for i in range(dim * len(landmarks))])
+    def vectorize_landmarks(self, landmarks):
+        landmarks_vector = numpy.array([0.0 for i in range(self.dimension * len(landmarks))])
         for lm_i, landmark in enumerate(landmarks):
-            landmarks_vector[dim*lm_i] = landmark.x
-            landmarks_vector[dim*lm_i+1] = landmark.y
-            if keep_z:
-                landmarks_vector[dim*lm_i+2] = landmark.z
-        # Translate points back to origin based on the center of mass
-        for axis in range(dim):
-            landmarks_vector[axis::dim] -= landmarks_vector[axis::dim].mean()
+            landmarks_vector[self.dimension*lm_i] = landmark.x
+            landmarks_vector[self.dimension*lm_i+1] = landmark.y
         return landmarks_vector
+
+    def feature_process_landmarks(self, landmarks_vector):
+        for axis in range(self.dimension):
+            landmarks_vector[axis::self.dimension] -= landmarks_vector[axis::self.dimension].mean()
+        return landmarks_vector.reshape(1,-1)
 
 class HandSnapshot:
 
