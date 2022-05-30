@@ -6,6 +6,7 @@ import pyautogui
 import numpy
 
 from .hand import Hand
+from .filter import OneEuroFilter
 
 class HandyMouseController:
 
@@ -27,11 +28,14 @@ class HandyMouseController:
         SCROLL = Hand.Pose.THUMB_SIDE
         LEFT_DOWN = Hand.Pose.INDEX_MIDDLE_UP
 
-    def __init__(self, sensitivity=0.5):
+    def __init__(self, sensitivity=0.5, min_cutoff_filter=0.1):
         self._set_sensitivity(sensitivity)
         self.current_mouse_state = self.MouseState.STANDARD
         self.current_state_init = 0
         self.screen_resolution = numpy.array(pyautogui.size())
+        # Motion smoothing
+        self.min_cutoff_filter = min_cutoff_filter
+        self.filter = [OneEuroFilter(0, 0, min_cutoff=min_cutoff_filter) for filter in range(2)]
 
     @property
     def sensitivity(self):
@@ -46,6 +50,16 @@ class HandyMouseController:
         max_margin = HandyMouseController.max_detection_margin
         min_margin = HandyMouseController.min_detection_margin
         self._detection_margin = (max_margin - min_margin) * value + min_margin
+
+    def palm_center(self, landmark_vector):
+        center = numpy.zeros(2)
+        for axis in range(2):
+            # Palm center
+            center[axis] = landmark_vector[axis::2][Hand.palm_landmarks].mean()
+            # Smoothing
+            frame = self.filter[axis].t_prev + 1
+            center[axis] = self.filter[axis](frame, center[axis])
+        return center
 
     def enter_state(self, state, init_frame):
         self.current_mouse_state = state
