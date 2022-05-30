@@ -29,7 +29,6 @@ hand_poses_listed = ', '.join([f'"{pose}"' for pose in hand_poses])
 # Parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('pose',
-                    default=0,
                     type=str,
                     help=f'Hand pose to record (should be one of {hand_poses_listed})')
 parser.add_argument('path_to_data',
