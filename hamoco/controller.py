@@ -28,14 +28,18 @@ class HandyMouseController:
         SCROLL = Hand.Pose.THUMB_SIDE
         LEFT_DOWN = Hand.Pose.INDEX_MIDDLE_UP
 
-    def __init__(self, sensitivity=0.5, min_cutoff_filter=0.1):
+    def __init__(self, sensitivity=0.5, scrolling_threshold=0.1, min_cutoff_filter=0.1):
         self._set_sensitivity(sensitivity)
+        self.scrolling_threshold = scrolling_threshold
+        # Motion smoothing
+        self.min_cutoff_filter = min_cutoff_filter
+        self.frame = 0
+        self.filter = [OneEuroFilter(0, 0, min_cutoff=min_cutoff_filter) for filter in range(2)]
+        # Mouse state and screen
+        self.previous_hand_pose = Hand.Pose.UNDEFINED
         self.current_mouse_state = self.MouseState.STANDARD
         self.current_state_init = 0
         self.screen_resolution = numpy.array(pyautogui.size())
-        # Motion smoothing
-        self.min_cutoff_filter = min_cutoff_filter
-        self.filter = [OneEuroFilter(0, 0, min_cutoff=min_cutoff_filter) for filter in range(2)]
 
     @property
     def sensitivity(self):
@@ -52,18 +56,18 @@ class HandyMouseController:
         self._detection_margin = (max_margin - min_margin) * value + min_margin
 
     def palm_center(self, landmark_vector):
+        self.frame += 1
         center = numpy.zeros(2)
         for axis in range(2):
             # Palm center
             center[axis] = landmark_vector[axis::2][Hand.palm_landmarks].mean()
             # Smoothing
-            frame = self.filter[axis].t_prev + 1
-            center[axis] = self.filter[axis](frame, center[axis])
+            center[axis] = self.filter[axis](self.frame, center[axis])
         return center
 
-    def enter_state(self, state, init_frame):
+    def enter_state(self, state):
         self.current_mouse_state = state
-        self.current_state_init = init_frame
+        self.current_state_init = self.frame
 
     @property
     def pointer_position(self):
@@ -88,15 +92,15 @@ class HandyMouseController:
         ymax = image.shape[0] - ymin
         return xmin, ymin, xmax, ymax
 
-    def _on_pose_change(self, new_hand_pose, current_frame):
+    def _on_pose_change(self, new_hand_pose):
         if self.current_mouse_state == HandyMouseController.MouseState.STANDARD:
-            self._on_pose_change_standard(new_hand_pose, current_frame)
+            self._on_pose_change_standard(new_hand_pose)
         if self.current_mouse_state == HandyMouseController.MouseState.SCROLLING:
-            self._on_pose_change_scrolling(new_hand_pose, current_frame)
+            self._on_pose_change_scrolling(new_hand_pose)
         if self.current_mouse_state == HandyMouseController.MouseState.DRAGGING:
-            self._on_pose_change_dragging(new_hand_pose, current_frame)       
+            self._on_pose_change_dragging(new_hand_pose)       
 
-    def _on_pose_change_standard(self, new_hand_pose, current_frame):
+    def _on_pose_change_standard(self, new_hand_pose):
         if new_hand_pose == self.Event.MOVE:
             pass
         elif new_hand_pose == Hand.Pose.CLOSE: #TODO: change here
@@ -106,21 +110,70 @@ class HandyMouseController:
         elif new_hand_pose == self.Event.RIGHT_CLICK:
             self.right_click()
         elif new_hand_pose == self.Event.LEFT_DOWN:
-            # pyautogui.doubleClick(button='left', _pause=False)
-            self.enter_state(HandyMouseController.MouseState.DRAGGING, current_frame)
+            self.enter_state(HandyMouseController.MouseState.DRAGGING)
         elif new_hand_pose == self.Event.SCROLL:
-            self.enter_state(HandyMouseController.MouseState.SCROLLING, current_frame)
+            self.enter_state(HandyMouseController.MouseState.SCROLLING)
 
-    def _on_pose_change_scrolling(self, new_hand_pose, current_frame):
+    def _on_pose_change_scrolling(self, new_hand_pose):
         if new_hand_pose != self.Event.SCROLL:
-            self.enter_state(HandyMouseController.MouseState.STANDARD, current_frame)
+            self.enter_state(HandyMouseController.MouseState.STANDARD)
 
-    def _on_pose_change_dragging(self, new_hand_pose, current_frame):
+    def _on_pose_change_dragging(self, new_hand_pose):
         if new_hand_pose != self.Event.LEFT_DOWN:
-            self.enter_state(HandyMouseController.MouseState.STANDARD, current_frame)
+            self.enter_state(HandyMouseController.MouseState.STANDARD)
 
     def left_click(self):
         pyautogui.leftClick(_pause=False)
 
     def right_click(self):
         pyautogui.rightClick(_pause=False)
+
+    def operate_mouse(self, hand, palm_center, confidence, min_confidence=0.5):
+
+        # Mouse in STANDARD mode
+        if self.current_mouse_state == HandyMouseController.MouseState.STANDARD:
+
+            # Move the mouse
+            if hand.pose == HandyMouseController.Event.MOVE:
+                self.move_pointer_to_hand_world(palm_center)
+                self.previous_hand_pose = hand.pose
+
+            # Hand pose changed: perform the appropriate action
+            elif hand.pose != self.previous_hand_pose and confidence > min_confidence:
+                self._on_pose_change(hand.pose)
+                self.previous_hand_pose = hand.pose
+        
+        # Mouse in SCROLLING mode
+        elif self.current_mouse_state == HandyMouseController.MouseState.SCROLLING:
+
+            # Scroll up or down
+            if hand.pose == HandyMouseController.Event.SCROLL:
+
+                # Get the reference position (origin) when scrolling begins (first frame)
+                if self.current_state_init == self.frame - 1:
+                    scrolling_origin_y = palm_center[1]
+                # Scroll up/down if above/below a certain distance threshold with
+                #  respect to the scrolling origin point (next frames)
+                else:
+                    diff_to_origin_y = scrolling_origin_y - palm_center[1]
+                    if abs(diff_to_origin_y) > self.scrolling_threshold:
+                        pyautogui.scroll(numpy.sign(diff_to_origin_y), _pause=False)
+
+            # Hand pose changed: perform the appropriate action
+            elif hand.pose != self.previous_hand_pose and confidence > min_confidence:
+                self._on_pose_change(hand.pose)
+                self.previous_hand_pose = hand.pose
+
+        # Mouse in DRAGGING mode
+        elif self.current_mouse_state == HandyMouseController.MouseState.DRAGGING:
+
+            # Get the reference position (origin) when scrolling begins (first frame)
+            if self.current_state_init == self.frame - 1:
+                pyautogui.mouseDown(_pause=False)
+            elif hand.pose != self.previous_hand_pose and confidence > min_confidence:
+                pyautogui.mouseUp(_pause=False)
+                self._on_pose_change(hand.pose)
+                self.previous_hand_pose = hand.pose
+            else:
+                self.move_pointer_to_hand_world(palm_center)
+                self.previous_hand_pose = hand.pose

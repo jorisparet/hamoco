@@ -24,6 +24,9 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
+# Allow mouse to go on the border of the screen
+pyautogui.FAILSAFE = False
+
 # Parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-S', '--sensitivity', 
@@ -62,11 +65,9 @@ show_feed = args.show
 path_to_model = __default_model__ if model is None else model
 trained_model = keras.models.load_model(path_to_model)
 
-# Allow mouse to go on the border of the screen
-pyautogui.FAILSAFE = False
-
 # Hand controller
 hand_controller = HandyMouseController(sensitivity=sensitivity,
+                                       scrolling_threshold=scrolling_threshold,
                                        min_cutoff_filter=min_cutoff_filter)
 
 # Webcam input
@@ -77,14 +78,8 @@ with mp_hands.Hands(static_image_mode=False,
                     min_detection_confidence=0.5,
                     min_tracking_confidence=0.5) as hands:
 
-    # Sample click
-    last_click_sample_time = time.time()
-    previous_hand_pose = -1
-
     # Detect hand movement while the video capture is on
-    frame = 0
     while capture.isOpened():
-        frame += 1
         success, image = capture.read()
         image_height, image_width, _ = image.shape
         image = cv2.flip(image, 1)
@@ -120,53 +115,11 @@ with mp_hands.Hands(static_image_mode=False,
             predicted_pose = numpy.argmax(probabilities)
             hand.pose = Hand.Pose(predicted_pose)
 
-            # Mouse in STANDARD mode
-            if hand_controller.current_mouse_state == HandyMouseController.MouseState.STANDARD:
-
-                # Move the mouse
-                if hand.pose == HandyMouseController.Event.MOVE:
-                    hand_controller.move_pointer_to_hand_world(palm_center)
-                    previous_hand_pose = hand.pose
-
-                # Hand pose changed: perform the appropriate action
-                elif hand.pose != previous_hand_pose and prediction_confidence > minimum_prediction_confidence:
-                    hand_controller._on_pose_change(hand.pose, frame)
-                    previous_hand_pose = hand.pose
-            
-            # Mouse in SCROLLING mode
-            elif hand_controller.current_mouse_state == HandyMouseController.MouseState.SCROLLING:
-
-                # Scroll up or down
-                if hand.pose == HandyMouseController.Event.SCROLL:
-
-                    # Get the reference position (origin) when scrolling begins (first frame)
-                    if hand_controller.current_state_init == frame - 1:
-                        scrolling_origin_y = palm_center[1]
-                    # Scroll up/down if above/below a certain distance threshold with
-                    #  respect to the scrolling origin point (next frames)
-                    else:
-                        diff_to_origin_y = scrolling_origin_y - palm_center[1]
-                        if abs(diff_to_origin_y) > scrolling_threshold:
-                            pyautogui.scroll(numpy.sign(diff_to_origin_y), _pause=False)
-
-                # Hand pose changed: perform the appropriate action
-                elif hand.pose != previous_hand_pose and prediction_confidence > minimum_prediction_confidence:
-                    hand_controller._on_pose_change(hand.pose, frame)
-                    previous_hand_pose = hand.pose
-
-            # Mouse in DRAGGING mode
-            elif hand_controller.current_mouse_state == HandyMouseController.MouseState.DRAGGING:
-
-                # Get the reference position (origin) when scrolling begins (first frame)
-                if hand_controller.current_state_init == frame - 1:
-                    pyautogui.mouseDown(_pause=False)
-                elif hand.pose != previous_hand_pose and prediction_confidence > minimum_prediction_confidence:
-                    pyautogui.mouseUp(_pause=False)
-                    hand_controller._on_pose_change(hand.pose, frame)
-                    previous_hand_pose = hand.pose
-                else:
-                    hand_controller.move_pointer_to_hand_world(palm_center)
-                    previous_hand_pose = hand.pose
+            # Perform the appropriate mouse action
+            hand_controller.operate_mouse(hand, 
+                                          palm_center,
+                                          prediction_confidence,
+                                          min_confidence=minimum_prediction_confidence)
 
         # Show the camera feed
         if show_feed:
