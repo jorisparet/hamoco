@@ -16,7 +16,7 @@ import pyautogui
 import keras
 import numpy
 
-from hamoco import Hand, HandyMouseController, OneEuroFilter
+from hamoco import Hand, HandyMouseController
 from hamoco.models import __default_model__
 
 # Mediapipe shortcuts
@@ -26,7 +26,7 @@ mp_hands = mp.solutions.hands
 
 # Parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('-s', '--sensitivity', 
+parser.add_argument('-S', '--sensitivity', 
                     default=0.25, 
                     type=float, 
                     help='Mouse sensitivity (between 0 and 1)')
@@ -34,6 +34,10 @@ parser.add_argument('--scrolling_threshold',
                     default=0.1, 
                     type=float, 
                     help='Amount of change from the origin scrolling position to start scrolling (between 0 and 1)')
+parser.add_argument('--min_cutoff_filter', 
+                    default=0.1, 
+                    type=float, 
+                    help='Minimum cutoff for motion smoothing (low values decrease jitter but increase speed lag)')
 parser.add_argument('--minimum_prediction_confidence',
                     default=0.8, 
                     type=float, 
@@ -48,6 +52,7 @@ parser.add_argument('--show',
 args = parser.parse_args()
 # Custom variables linked to parser
 sensitivity = args.sensitivity
+min_cutoff_filter = args.min_cutoff_filter
 scrolling_threshold = args.scrolling_threshold
 minimum_prediction_confidence = args.minimum_prediction_confidence
 model = args.model
@@ -61,12 +66,8 @@ trained_model = keras.models.load_model(path_to_model)
 pyautogui.FAILSAFE = False
 
 # Hand controller
-hand_controller = HandyMouseController(sensitivity=sensitivity)
-
-# Signal filter
-min_cutoff = 0.1
-filter_x = OneEuroFilter(0, 0.0, min_cutoff=min_cutoff)
-filter_y = OneEuroFilter(0, 0.0, min_cutoff=min_cutoff)
+hand_controller = HandyMouseController(sensitivity=sensitivity,
+                                       min_cutoff_filter=min_cutoff_filter)
 
 # Webcam input
 capture = cv2.VideoCapture(0)
@@ -106,29 +107,15 @@ with mp_hands.Hands(static_image_mode=False,
                 mp_drawing_styles.get_default_hand_landmarks_style(),
                 mp_drawing_styles.get_default_hand_connections_style())
 
-            # Detected hand's landmarks coordinates
-            hand = Hand()
+            # Landmark coordinates of the detected hand
             landmarks = results.multi_hand_landmarks[0].landmark
-            landmark_vector = hand.process_landmarks(landmarks)
-
-            # We compute the coordinates (x,y) of the center of mass of the hand
-            #  be averaging the positions of the different landmarks
-            # num_landmarks = len(landmarks)
-            palm_landmarks = [0,5,9,13,17]
-            num_landmarks = len(palm_landmarks)
-            hand_center_x, hand_center_y = 0.0, 0.0
-            # for landmark_index in range(num_landmarks):
-            for landmark_index in palm_landmarks:
-                hand_center_x += landmarks[landmark_index].x
-                hand_center_y += landmarks[landmark_index].y
-            hand_center_x = (1.0 / num_landmarks) * hand_center_x
-            hand_center_y = (1.0 / num_landmarks) * hand_center_y
-            hand_center_x = filter_x(frame, hand_center_x)
-            hand_center_y = filter_y(frame, hand_center_y)
-            hand_center = numpy.array([hand_center_x, hand_center_y])
+            hand = Hand()
+            raw_landmark_vector = hand.vectorize_landmarks(landmarks)
+            palm_center = hand_controller.palm_center(raw_landmark_vector)
 
             # Predict hand pose
-            probabilities = trained_model.predict(landmark_vector.reshape(1,-1)).flatten()
+            processed_landmark_vector = hand.feature_process_landmarks(raw_landmark_vector)
+            probabilities = trained_model.predict(processed_landmark_vector).flatten()
             prediction_confidence = numpy.max(probabilities)
             predicted_pose = numpy.argmax(probabilities)
             hand.pose = Hand.Pose(predicted_pose)
@@ -138,7 +125,7 @@ with mp_hands.Hands(static_image_mode=False,
 
                 # Move the mouse
                 if hand.pose == HandyMouseController.Event.MOVE:
-                    hand_controller.move_pointer_to_hand_world(hand_center)
+                    hand_controller.move_pointer_to_hand_world(palm_center)
                     previous_hand_pose = hand.pose
 
                 # Hand pose changed: perform the appropriate action
@@ -154,11 +141,11 @@ with mp_hands.Hands(static_image_mode=False,
 
                     # Get the reference position (origin) when scrolling begins (first frame)
                     if hand_controller.current_state_init == frame - 1:
-                        scrolling_origin_y = hand_center_y
+                        scrolling_origin_y = palm_center[1]
                     # Scroll up/down if above/below a certain distance threshold with
                     #  respect to the scrolling origin point (next frames)
                     else:
-                        diff_to_origin_y = scrolling_origin_y - hand_center_y
+                        diff_to_origin_y = scrolling_origin_y - palm_center[1]
                         if abs(diff_to_origin_y) > scrolling_threshold:
                             pyautogui.scroll(numpy.sign(diff_to_origin_y), _pause=False)
 
@@ -178,14 +165,14 @@ with mp_hands.Hands(static_image_mode=False,
                     hand_controller._on_pose_change(hand.pose, frame)
                     previous_hand_pose = hand.pose
                 else:
-                    hand_controller.move_pointer_to_hand_world(hand_center)
+                    hand_controller.move_pointer_to_hand_world(palm_center)
                     previous_hand_pose = hand.pose
 
         # Show the camera feed
         if show_feed:
             # Hand center
             if results.multi_hand_landmarks:
-                cursor_xy = (hand_center * numpy.array([image_width, image_height])).astype(int)
+                cursor_xy = (palm_center * numpy.array([image_width, image_height])).astype(int)
                 cursor_size = 10
                 cv2.rectangle(image, tuple(cursor_xy - cursor_size), 
                                     tuple(cursor_xy + cursor_size), 
