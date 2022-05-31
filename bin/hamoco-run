@@ -7,7 +7,6 @@
 #TODO: put all the controller-related actions somewhere else
 #TODO: Add a global description to the parser
 
-import time
 import argparse
 
 import cv2
@@ -29,7 +28,12 @@ mp_hands = mp.solutions.hands
 pyautogui.FAILSAFE = False
 
 # Parser
+
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+description = f"""{parser.prog} activates the webcam and allows to use hand
+gestures to take control of the mouse pointer. Several basic actions can then
+be performed, such as left click, right click, drag and drop and scrolling.""".replace('\n',' ')
+parser.description = description
 parser.add_argument('-S', '--sensitivity', 
                     default=0.25, 
                     type=float, 

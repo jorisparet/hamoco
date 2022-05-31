@@ -2,7 +2,6 @@
 
 #TODO: Add an option '--reset' to remove all saved poses before recording
 #TODO: Start the `snapshot_index` variable at the last value if saved files already exist
-#TODO: Add a global description to the parser
 #TODO: Add a way to stop the recording (e.g. provide the max number of snapshots)
 
 import os
@@ -28,6 +27,9 @@ hand_poses_listed = ', '.join([f'"{pose}"' for pose in hand_poses])
 
 # Parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+description = f"""{parser.prog} activates the webcam and allows to record labeled hand poses
+in order to train a custom classification model for the main application.""".replace('\n',' ')
+parser.description = description
 parser.add_argument('pose',
                     type=str,
                     help=f'Hand pose to record (should be one of {hand_poses_listed})')
