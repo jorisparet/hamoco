@@ -53,7 +53,7 @@ Examples:
 
 ### hamoco-data
 
-*hamoco-data* activates the webcam and allows to record your own labeled data for hand poses in order to train a custom NN-based classification model for the main application. This model can then be used in place of the one provided by default and will be more performant, as it will be trained on your personal and natural hand poses (see *hamoco-train*). Type `--help` for more information on the available options.
+*hamoco-data* activates the webcam and allows to record your own labeled data for hand poses in order to train a custom NN-based classification model for the main application. This model can then be used in place of the one provided by default and will be more performant, as it will be trained on your personal and natural hand poses (see *[hamoco-train](#hamoco-train)*). Type `--help` for more information on the available options.
 
 The application requires two arguments:
 - `pose`: a string that indicates the type of hand pose you intend to record. It should be one of {*OPEN, CLOSE, INDEX_UP, PINKY_UP, THUMB_SIDE, INDEX_MIDDLE_UP*}.
@@ -69,13 +69,13 @@ Provided a path to a directory with relevant data, *hamoco-train* trains a custo
 
 The application requires two arguments:
 - `path_to_model` : path to save the newly trained model.
-- `path_to_data` : path to the data folder to use to train the model (see *hamoco-data*).
+- `path_to_data` : path to the data folder to use to train the model (see *[hamoco-data](#hamoco-data)*).
 
 Examples:
 - `hamoco-train my_custom_model.h5 data/ --hiden_layers 50 25 --epochs 20` : trains and save a model named `my_custom_model.h5` that contains two hidden layers (with dimensions 50 and 25 respectively) over 20 epochs, by using the formatted data in the `data` folder.
 - `hamoco-train my_custom_model.h5 data/ --epochs 10 --learning_rate 0.1` : trains and save a model named `my_custom_model.h5` with default dimensions over 20 epochs and a learning rate of 0.1, by using the formatted data in the `data` folder.
 
-Your model can then be used in the main application with the `--model` flag of *hamoco-run*, *e.g.* `hamoco-run --model <path_to_your_model> [additional options]`.
+Your model can then be used in the main application with the `--model` flag of *[hamoco-run](#hamoco-run)*, *e.g.* `hamoco-run --model <path_to_your_model> [additional options]`.
 
 Author
 ------
