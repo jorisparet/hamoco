@@ -65,8 +65,10 @@ class HandSnapshot:
         '''Save the landmarks vector to a text file.'''
         if path is None:
             path = 'defaut_name'
-        landmarks_vector = self.hand.process_landmarks(landmarks)
+        raw_landmarks_vector = self.hand.vectorize_landmarks(landmarks)
+        processed_landmarks_vector = self.hand.feature_process_landmarks(raw_landmarks_vector)
         with open(f'{path}.dat', 'w') as vec_file:
             vec_file.write(f'{self.hand.pose.value}\n')
-            for pos in landmarks_vector:
+            for pos in processed_landmarks_vector.flatten():
                 vec_file.write(f'{pos:.6f} ')
+            vec_file.write('\n')

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-#TODO: Add an option '--save_snapshots'
 #TODO: Add an option '--reset' to remove all saved poses before recording
 #TODO: Start the `snapshot_index` variable at the last value if saved files already exist
 #TODO: Add a global description to the parser
@@ -13,6 +12,7 @@ import argparse
 import cv2
 import mediapipe as mp
 from hamoco import Hand, HandSnapshot
+from hamoco.utils import draw_hand_landmarks, __window_name__
 
 # Mediapipe shortcuts
 mp_drawing = mp.solutions.drawing_utils
@@ -68,43 +68,29 @@ with mp_hands.Hands(static_image_mode=False,
     # Detect hand movement while the video capture is on
     while capture.isOpened():
         success, image = capture.read()
-        image_height, image_width, _ = image.shape
+        image = cv2.flip(image, 1)
 
         if not success:
             print("Ignoring empty camera frame.")
             # If loading a video, use 'break' instead of 'continue'.
             continue
 
-        # To improve performance, optionally mark the image as not writeable to
-        # pass by reference.
-        image.flags.writeable = False
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = cv2.flip(image, 1)
+        # Hand detection results
         results = hands.process(image)
-
-        # Draw the hand annotations on the image.
-        image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(
-                    image,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS,
-                    mp_drawing_styles.get_default_hand_landmarks_style(),
-                    mp_drawing_styles.get_default_hand_connections_style())
-
-        # Display the image (stop if ESC key is pressed)
-        cv2.imshow('MediaPipe Hands', image)
-        if cv2.waitKey(5) & 0xFF == 27:
-            break
+        hand_detected = bool(results.multi_hand_landmarks)
+        if hand_detected:
+                # Draw the hand annotations on the image
+                draw_hand_landmarks(image, results.multi_hand_landmarks[0])
 
         # Snapshot every `delay_between_snapshot` seconds
         if time.time() - last_snapshot > delay_between_snapshots:
 
-            if results.multi_hand_landmarks:
+            if hand_detected:
+
+                # Get the landmarks
                 landmarks = results.multi_hand_landmarks[0].landmark
 
+                # Save the data (an optionally the corresponding image)
                 if record:
                     hand = Hand(pose=training_pose)
                     snapshot = HandSnapshot(hand=hand)
@@ -118,7 +104,13 @@ with mp_hands.Hands(static_image_mode=False,
                     last_snapshot = time.time()
                     snapshot_index += 1
 
+                # Only basic information about the detection
                 else:
                     which_hand = results.multi_handedness[0].classification[0].label
                     confidence = int(100 * results.multi_handedness[0].classification[0].score)
                     print('Hand detected={} | Confidence={}%'.format(which_hand, confidence))
+
+        # Display the image (stop if ESC key is pressed)
+        cv2.imshow(__window_name__, image)
+        if cv2.waitKey(5) & 0xFF == 27:
+            break
