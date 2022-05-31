@@ -16,7 +16,8 @@ import numpy
 
 from hamoco import Hand, HandyMouseController
 from hamoco.models import __default_model__
-from hamoco.utils import draw_hand_landmarks, draw_palm_center, draw_control_bounds, __window_name__
+from hamoco.utils import draw_hand_landmarks, draw_palm_center, draw_control_bounds
+from hamoco.utils import write_pose, __window_name__
 
 # Mediapipe shortcuts
 mp_drawing = mp.solutions.drawing_utils
@@ -27,7 +28,6 @@ mp_hands = mp.solutions.hands
 pyautogui.FAILSAFE = False
 
 # Parser
-
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 description = f"""{parser.prog} activates the webcam and allows to use hand
 gestures to take control of the mouse pointer. Several basic actions can then
@@ -128,13 +128,14 @@ with mp_hands.Hands(static_image_mode=False,
         # Show the camera feed
         if show_feed:
 
-            # Show palm center
-            if hand_detected:
-                draw_palm_center(image, palm_center, size=20)
-
             # Accessible area        
             bounds = hand_controller.accessible_area(image)
             draw_control_bounds(image, bounds)
+
+            # Show palm center
+            if hand_detected:
+                draw_palm_center(image, palm_center, size=20)
+                write_pose(image, hand.pose.name)
 
             # Show
             cv2.imshow(__window_name__, image)

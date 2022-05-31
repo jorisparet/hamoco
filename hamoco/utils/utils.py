@@ -38,3 +38,8 @@ def draw_control_bounds(image, bounds):
     cv2.rectangle(hidden, (xmin, ymax), (xmax, height), color, -1)
     mask = hidden.astype(bool)
     image[mask] = cv2.addWeighted(image, alpha, hidden, 1-alpha, 0)[mask]
+
+def write_pose(image, pose, color=(0, 0, 255), thickness=1, margin=(5,10)):
+    height, width, _ = image.shape
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(image, f'Pose: {pose}', (margin[0], height-margin[1]), font, 1, color, thickness=thickness)
