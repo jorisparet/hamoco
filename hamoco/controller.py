@@ -28,13 +28,14 @@ class HandyMouseController:
         SCROLL = Hand.Pose.THUMB_SIDE
         LEFT_DOWN = Hand.Pose.INDEX_MIDDLE_UP
 
-    def __init__(self, sensitivity=0.5, scrolling_threshold=0.1, min_cutoff_filter=0.1):
+    def __init__(self, sensitivity=0.5, scrolling_threshold=0.1, min_cutoff_filter=0.1, beta_filter=0.0):
         self._set_sensitivity(sensitivity)
         self.scrolling_threshold = scrolling_threshold
         # Motion smoothing
         self.min_cutoff_filter = min_cutoff_filter
+        self.beta_filter = beta_filter
         self.frame = 0
-        self.filter = [OneEuroFilter(0, 0, min_cutoff=min_cutoff_filter) for filter in range(2)]
+        self.filter = [OneEuroFilter(0, 0, min_cutoff=min_cutoff_filter, beta=beta_filter) for filter in range(2)]
         # Mouse state and screen
         self.previous_hand_pose = Hand.Pose.UNDEFINED
         self.current_mouse_state = self.MouseState.STANDARD

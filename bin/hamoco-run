@@ -5,7 +5,6 @@
 #TODO: relative pointer movement instead of absolute
 #TODO: struggle to go from open to index up?
 #TODO: put all the controller-related actions somewhere else
-#TODO: Add a global description to the parser
 
 import argparse
 
@@ -43,9 +42,13 @@ parser.add_argument('--scrolling_threshold',
                     type=float, 
                     help='Amount of change from the origin scrolling position to start scrolling (between 0 and 1)')
 parser.add_argument('--min_cutoff_filter', 
-                    default=0.1, 
+                    default=0.01, 
                     type=float, 
-                    help='Minimum cutoff for motion smoothing (low values decrease jitter but increase speed lag)')
+                    help='Minimum cutoff frequency for motion smoothing (low values decrease jitter but increase speed lag)')
+parser.add_argument('--beta_filter', 
+                    default=10.0, 
+                    type=float, 
+                    help='Speed coefficient for motion smoothing (large values decrease speed lag but increase jitter)')
 parser.add_argument('--minimum_prediction_confidence',
                     default=0.8, 
                     type=float, 
@@ -61,6 +64,7 @@ args = parser.parse_args()
 # Custom variables linked to parser
 sensitivity = args.sensitivity
 min_cutoff_filter = args.min_cutoff_filter
+beta_filter = args.beta_filter
 scrolling_threshold = args.scrolling_threshold
 minimum_prediction_confidence = args.minimum_prediction_confidence
 model = args.model
@@ -73,7 +77,8 @@ trained_model = keras.models.load_model(path_to_model)
 # Hand controller
 hand_controller = HandyMouseController(sensitivity=sensitivity,
                                        scrolling_threshold=scrolling_threshold,
-                                       min_cutoff_filter=min_cutoff_filter)
+                                       min_cutoff_filter=min_cutoff_filter,
+                                       beta_filter=beta_filter)
 
 # Webcam input
 capture = cv2.VideoCapture(0)
