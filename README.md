@@ -4,6 +4,7 @@
 
 [![version](https://img.shields.io/badge/python-3.6+-blue.svg)](https://pypi.python.org/pypi/partycls/)
 [![license](https://img.shields.io/pypi/l/partycls.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License)
+![coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)
 
 # Hamoco
 
@@ -35,7 +36,7 @@ pip install .
 ### Requirements:
 
 * [PyAutoGUI](https://pypi.org/project/PyAutoGUI/)
-* [numpy](https://pypi.org/project/numpy/)
+* [NumPy](https://pypi.org/project/numpy/)
 * [openCV](https://pypi.org/project/opencv-python/)
 * [MediaPipe](https://google.github.io/mediapipe/)
 * [Keras](https://keras.io/)
