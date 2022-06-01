@@ -1,4 +1,7 @@
 *~
 __pycache__
-data/
+model_data
 images/_*.png
+.coverage
+tests/data/test-*
+tests/data/phony_model.h5
