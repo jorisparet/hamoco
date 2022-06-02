@@ -16,7 +16,7 @@ import numpy
 
 from hamoco import Hand, HandyMouseController
 from hamoco.models import __default_model__
-from hamoco.utils import draw_hand_landmarks, draw_palm_center, draw_control_bounds
+from hamoco.utils import draw_hand_landmarks, draw_palm_center, draw_control_bounds, draw_scrolling_origin
 from hamoco.utils import write_pose, __window_name__
 
 # Mediapipe shortcuts
@@ -136,6 +136,10 @@ with mp_hands.Hands(static_image_mode=False,
             if hand_detected:
                 draw_palm_center(image, palm_center, size=20)
                 write_pose(image, hand.pose.name)
+
+            # Draw scrolling origin
+            if hand_controller.current_mouse_state == HandyMouseController.MouseState.SCROLLING:
+                draw_scrolling_origin(image, hand_controller.scrolling_origin, hand_controller.scrolling_threshold)
 
             # Show
             cv2.imshow(__window_name__, image)

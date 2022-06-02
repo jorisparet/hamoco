@@ -40,6 +40,18 @@ def draw_control_bounds(image, bounds):
     mask = hidden.astype(bool)
     image[mask] = cv2.addWeighted(image, alpha, hidden, 1-alpha, 0)[mask]
 
+def draw_scrolling_origin(image, origin, threshold):
+    height, width, _ = image.shape
+    top = int( (origin + threshold) * height )
+    bottom = int( (origin - threshold) * height )
+    start_top = (0, top)
+    end_top = (width, top)
+    start_bottom = (0, bottom)
+    end_bottom = (width, bottom)
+    color = (0,255,0)
+    cv2.line(image, start_top, end_top, color, 2)
+    cv2.line(image, start_bottom, end_bottom, color, 2)
+
 def write_pose(image, pose, color=(0, 0, 255), thickness=1, margin=(5,10)):
     height, width, _ = image.shape
     font = cv2.FONT_HERSHEY_SIMPLEX
