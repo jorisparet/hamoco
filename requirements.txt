@@ -1,5 +1,5 @@
 pyautogui
 numpy
-cv2
+opencv-python
 mediapipe
 keras
