@@ -1,5 +1,6 @@
-import numpy
+import random
 
+import numpy
 import cv2
 import mediapipe as mp
 
@@ -43,3 +44,18 @@ def write_pose(image, pose, color=(0, 0, 255), thickness=1, margin=(5,10)):
     height, width, _ = image.shape
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(image, f'Pose: {pose}', (margin[0], height-margin[1]), font, 1, color, thickness=thickness)
+
+def train_test_split(X, y, test_size=0.0, seed=None):
+    # Seed
+    random.seed(seed)
+    # Bounds
+    n_samples = X.shape[0]
+    n_samples_train = int( (1.0 - test_size) * n_samples )
+    # Separate datasets
+    indices_train = random.sample(range(n_samples), n_samples_train)
+    indices_test = [i for i in range(n_samples) if i not in indices_train]
+    X_train = X[indices_train, :]
+    X_test = X[indices_test, :]
+    y_train = y[indices_train]
+    y_test = y[indices_test]
+    return X_train, X_test, y_train, y_test
