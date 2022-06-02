@@ -39,7 +39,7 @@ pip install .
 * [NumPy](https://pypi.org/project/numpy/)
 * [openCV](https://pypi.org/project/opencv-python/)
 * [MediaPipe](https://google.github.io/mediapipe/)
-* [Keras](https://keras.io/)
+* [TensorFlow](https://www.tensorflow.org)
 
 Quick start
 -----------

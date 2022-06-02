@@ -2,4 +2,4 @@ pyautogui
 numpy
 opencv-python
 mediapipe
-keras
+tensorflow
