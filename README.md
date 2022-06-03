@@ -28,6 +28,7 @@ From the [code repository](https://github.com/jorisparet/hamoco):
 ```
 git clone https://github.com/jorisparet/hamoco
 cd hamoco
+pip install -r requirements.txt
 pip install .
 ```
 
