@@ -41,6 +41,10 @@ parser.add_argument('--scrolling_threshold',
                     default=0.1, 
                     type=float, 
                     help='Amount of change from the origin scrolling position to start scrolling (between 0 and 1)')
+parser.add_argument('--scrolling_speed', 
+                    default=1.0, 
+                    type=float, 
+                    help='Scrolling speed')
 parser.add_argument('--min_cutoff_filter', 
                     default=0.01, 
                     type=float, 
@@ -63,9 +67,10 @@ parser.add_argument('--show',
 args = parser.parse_args()
 # Custom variables linked to parser
 sensitivity = args.sensitivity
+scrolling_threshold = args.scrolling_threshold
+scrolling_speed = args.scrolling_speed
 min_cutoff_filter = args.min_cutoff_filter
 beta_filter = args.beta_filter
-scrolling_threshold = args.scrolling_threshold
 minimum_prediction_confidence = args.minimum_prediction_confidence
 model = args.model
 show_feed = args.show
@@ -77,6 +82,7 @@ trained_model = keras.models.load_model(path_to_model)
 # Hand controller
 hand_controller = HandyMouseController(sensitivity=sensitivity,
                                        scrolling_threshold=scrolling_threshold,
+                                       scrolling_speed=scrolling_speed,
                                        min_cutoff_filter=min_cutoff_filter,
                                        beta_filter=beta_filter)
 

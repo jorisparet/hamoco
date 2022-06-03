@@ -28,9 +28,10 @@ class HandyMouseController:
         SCROLL = Hand.Pose.THUMB_SIDE
         LEFT_DOWN = Hand.Pose.INDEX_MIDDLE_UP
 
-    def __init__(self, sensitivity=0.5, scrolling_threshold=0.1, min_cutoff_filter=0.1, beta_filter=0.0):
+    def __init__(self, sensitivity=0.5, scrolling_threshold=0.1, scrolling_speed=1.0, min_cutoff_filter=0.1, beta_filter=0.0):
         self._set_sensitivity(sensitivity)
         self.scrolling_threshold = scrolling_threshold
+        self.scrolling_speed = scrolling_speed
         # Motion smoothing
         self.min_cutoff_filter = min_cutoff_filter
         self.beta_filter = beta_filter
@@ -159,7 +160,7 @@ class HandyMouseController:
                 else:
                     diff_to_origin_y = self.scrolling_origin - palm_center[1]
                     if abs(diff_to_origin_y) > self.scrolling_threshold:
-                        pyautogui.scroll(numpy.sign(diff_to_origin_y), _pause=False)
+                        pyautogui.scroll(int(numpy.sign(diff_to_origin_y) * self.scrolling_speed), _pause=False)
 
             # Hand pose changed: perform the appropriate action
             elif hand.pose != self.previous_hand_pose and confidence > min_confidence:
