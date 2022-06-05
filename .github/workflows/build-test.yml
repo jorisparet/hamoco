@@ -23,16 +23,12 @@ jobs:
         
     - name: Install
       run: |
-        sudo apt update
-        sudo apt install xserver-xephyr
-        Xephyr -br -ac -noreset -screen 800x600 :1
-        export DISPLAY=:1
+        sudo apt-get install xvfb
         pip install -r requirements.txt
         pip install coverage
         pip install .
         
-    - name: Test and coverage
+    - name: Run tests
       run: |
-        coverage run --source hamoco -m unittest discover -s tests
-        coverage report -m
+        xvfb-run -a -s "-screen 0 640x480x8" python -m unittest discover -s tests
         
