@@ -2,7 +2,7 @@
 <a href="https://github.com/jorisparet/hamoco"><img src="https://raw.githubusercontent.com/jorisparet/hamoco/main/images/logo.svg" width="250"></a>
 </p>
 
-[![version](https://img.shields.io/badge/python-3.6+-blue.svg)](https://pypi.python.org/pypi/partycls/)
+[![version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://pypi.python.org/pypi/partycls/)
 [![license](https://img.shields.io/pypi/l/partycls.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License)
 ![coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)
 
