@@ -62,6 +62,7 @@ Run these applications directly in the terminal, *e.g.* `hamoco-run --sensitivit
 Examples:
 - `hamoco-run --sensitivity 0.4 --scrolling_threshold 0.2` : adapts the sensitivity and sets a custom threshold value to trigger scrolling motions.
 - `hamoco-run --min_cutoff_filter 0.05 --show` : sets a custom value for the cutoff frequency used for motion smoothing and opens a window that shows the processed video feed in real-time.
+- `hamoco-run --scrolling_speed 20` : sets a custom value for the scrolling speed. Note that for a given value, results may differ significantly depending on the operating system.
 
 **Hand poses & Mouse actions:**
 - `OPEN` : the pointer is free and follows the center of the palm (indicated by the white empty square) ;
