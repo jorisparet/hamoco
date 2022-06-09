@@ -43,7 +43,10 @@ class Hand:
 
     def feature_process_landmarks(self, landmarks_vector):
         for axis in range(self.dimension):
+            # Translate center of mass back to origin
             landmarks_vector[axis::self.dimension] -= landmarks_vector[axis::self.dimension].mean()
+            # Make scale invariant
+            landmarks_vector[axis::self.dimension] /= landmarks_vector[axis::self.dimension].std()
         return landmarks_vector.reshape(1,-1)
 
 class HandSnapshot:
