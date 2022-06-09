@@ -4,6 +4,7 @@
 
 [![version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://pypi.python.org/pypi/partycls/)
 [![license](https://img.shields.io/pypi/l/partycls.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License)
+[![build](https://github.com/jorisparet/hamoco/actions/workflows/build-test.yml/badge.svg)](https://github.com/jorisparet/hamoco/actions/workflows/build-test.yml)
 ![coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)
 
 # Hamoco
