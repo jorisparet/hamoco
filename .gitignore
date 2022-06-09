@@ -6,3 +6,4 @@ images/_*.png
 tests/data/test-*
 tests/data/phony_model.h5
 TODO.md
+_notebooks
