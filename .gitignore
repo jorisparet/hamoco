@@ -5,3 +5,4 @@ images/_*.png
 .coverage
 tests/data/test-*
 tests/data/phony_model.h5
+TODO.md
