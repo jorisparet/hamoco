@@ -105,4 +105,4 @@ Your model can then be used in the main application with the `--model` flag of *
 Author
 ------
 
-[Joris Paret](https://www.linkedin.com/in/joris-paret/)
+[Joris Paret](https://jorisparet.github.io/)
