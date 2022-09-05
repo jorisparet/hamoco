@@ -16,7 +16,6 @@ class HandyMouseController:
         STANDARD = 0
         SCROLLING = 1
         DRAGGING = 2
-        STILL = 4
 
     @enum.unique
     class Event(enum.IntEnum):
