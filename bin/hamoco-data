@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-#TODO: Add an option '--reset' to remove all saved poses before recording
-#TODO: Start the `snapshot_index` variable at the last value if saved files already exist
 #TODO: Add a way to stop the recording (e.g. provide the max number of snapshots)
 
 import os
@@ -36,6 +34,9 @@ parser.add_argument('pose',
 parser.add_argument('path_to_data',
                     type=str,
                     help='Path to the directory that will store the recorded data')
+parser.add_argument('-R', '--reset',
+                    action='store_true',
+                    help='Remove any previously recorded data for the specified hand pose before recording.')
 parser.add_argument('--delay',
                     type=float,
                     default=0.5,
@@ -50,6 +51,7 @@ args = parser.parse_args()
 # Custom variables linked to parser
 pose_name = args.pose
 path_to_data = args.path_to_data
+reset = args.reset
 delay_between_snapshots = args.delay
 save_images = args.images
 record = not(args.test)
@@ -58,6 +60,19 @@ record = not(args.test)
 last_snapshot = time.time()
 snapshot_index = 0
 training_pose = Hand.Pose[pose_name]
+
+# Remove previously recorded files (both data files and images)
+files = os.listdir(path_to_data)
+files = [f for f in files if f.startswith('snapshot_')]
+files.sort()
+if reset:
+    for file in files:
+            os.remove(os.path.join(path_to_data, file))
+# Find next snapshot index to append to previous files
+else:
+    files = [f for f in files if f.endswith('.dat')]
+    if len(files) > 0:
+        snapshot_index = int(files[-1][9:13]) + 1
 
 # Webcam input
 capture = cv2.VideoCapture(0)
@@ -96,7 +111,8 @@ with mp_hands.Hands(static_image_mode=False,
                 if record:
                     hand = Hand(pose=training_pose)
                     snapshot = HandSnapshot(hand=hand)
-                    output_path = os.path.join(path_to_data, f'snapshot_{snapshot_index:04}_pose-{hand.pose.value}-{hand.pose.name}')
+                    current_file = f'snapshot_{snapshot_index:04}_pose-{hand.pose.value}-{hand.pose.name}'
+                    output_path = os.path.join(path_to_data, current_file)
                     snapshot.save_landmarks_vector(landmarks, path=output_path)
                     if save_images:
                         snapshot.save_processed_image(image, path=output_path)
