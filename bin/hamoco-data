@@ -68,7 +68,7 @@ training_pose = Hand.Pose[pose_name]
 
 # Remove previously recorded files (both data files and images)
 files = os.listdir(path_to_data)
-files = [f for f in files if f.startswith('snapshot_')]
+files = [f for f in files if f.startswith('snapshot_') and pose_name in f]
 files.sort()
 if reset:
     for file in files:
