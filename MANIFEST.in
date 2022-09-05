@@ -1,1 +1,2 @@
 include hamoco/models/*
+include hamoco/utils/*

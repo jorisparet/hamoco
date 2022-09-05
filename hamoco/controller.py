@@ -1,5 +1,3 @@
-#TODO: Add a config file that maps a hand pose to an event
-
 import enum
 
 import pyautogui

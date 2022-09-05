@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-#TODO: adapt certain elements to the current framerate
-#TODO: struggle to go from open to index up?
-
 import argparse
+import json
 
 import cv2
 import mediapipe as mp
@@ -14,7 +12,7 @@ import numpy
 from hamoco import Hand, HandyMouseController
 from hamoco.models import __default_model__
 from hamoco.utils import draw_hand_landmarks, draw_palm_center, draw_control_bounds, draw_scrolling_origin
-from hamoco.utils import write_pose, __window_name__
+from hamoco.utils import __default_config__, write_pose, __window_name__
 
 # Mediapipe shortcuts
 mp_drawing = mp.solutions.drawing_utils
@@ -24,6 +22,10 @@ mp_hands = mp.solutions.hands
 # Allow mouse to go on the border of the screen
 pyautogui.FAILSAFE = False
 
+# Load default settings
+with open(__default_config__) as cfg:
+    default_config = json.load(cfg)
+
 # Parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 description = f"""{parser.prog} activates the webcam and allows to use hand
@@ -31,35 +33,35 @@ gestures to take control of the mouse pointer. Several basic actions can then
 be performed, such as left click, right click, drag and drop and scrolling.""".replace('\n',' ')
 parser.description = description
 parser.add_argument('-S', '--sensitivity', 
-                    default=0.25, 
+                    default=default_config['sensitivity'], 
                     type=float, 
                     help='Mouse sensitivity (between 0 and 1)')
 parser.add_argument('--scrolling_threshold', 
-                    default=0.1, 
+                    default=default_config['scrolling_threshold'], 
                     type=float, 
                     help='Amount of change from the origin scrolling position to start scrolling (between 0 and 1)')
 parser.add_argument('--scrolling_speed', 
-                    default=1.0, 
+                    default=default_config['scrolling_speed'],
                     type=float, 
                     help='Scrolling speed')
 parser.add_argument('--min_cutoff_filter', 
-                    default=0.01, 
+                    default=default_config['min_cutoff_filter'],
                     type=float, 
                     help='Minimum cutoff frequency for motion smoothing (low values decrease jitter but increase speed lag)')
 parser.add_argument('--beta_filter', 
-                    default=10.0, 
+                    default=default_config['beta_filter'], 
                     type=float, 
                     help='Speed coefficient for motion smoothing (large values decrease speed lag but increase jitter)')
 parser.add_argument('--minimum_prediction_confidence',
-                    default=0.8, 
+                    default=default_config['minimum_prediction_confidence'], 
                     type=float, 
                     help='Minimum prediction confidence for predicting hand poses')
 parser.add_argument('-m', '--model', 
-                    default=None, 
+                    default=default_config['model'],
                     type=str,
                     help='Path to the Keras model to use for hand pose prediction')
 parser.add_argument('--show',
-                    action='store_true',
+                    action='store_'+str(not default_config['show']).lower(),
                     help='Real-time display of the processed camera feed')
 args = parser.parse_args()
 # Custom variables linked to parser
