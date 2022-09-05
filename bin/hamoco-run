@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 #TODO: adapt certain elements to the current framerate
-#TODO: more accurate mouse movement with close fist
-#TODO: relative pointer movement instead of absolute
 #TODO: struggle to go from open to index up?
-#TODO: put all the controller-related actions somewhere else
 
 import argparse
 

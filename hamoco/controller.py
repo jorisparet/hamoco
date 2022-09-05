@@ -18,11 +18,12 @@ class HandyMouseController:
         STANDARD = 0
         SCROLLING = 1
         DRAGGING = 2
+        STILL = 4
 
     @enum.unique
     class Event(enum.IntEnum):
         MOVE = Hand.Pose.OPEN
-        MOVE_SLOW = Hand.Pose.CLOSE
+        STOP = Hand.Pose.CLOSE
         LEFT_CLICK = Hand.Pose.INDEX_UP
         RIGHT_CLICK = Hand.Pose.PINKY_UP
         SCROLL = Hand.Pose.THUMB_SIDE
@@ -41,6 +42,7 @@ class HandyMouseController:
         self.previous_hand_pose = Hand.Pose.UNDEFINED
         self.current_mouse_state = self.MouseState.STANDARD
         self.current_state_init = 0
+        self.previous_position = numpy.zeros(2)
         self.scrolling_origin = 0
         self.screen_resolution = numpy.array(pyautogui.size())
 
@@ -82,11 +84,15 @@ class HandyMouseController:
         for i in range(2):
             trim_xy[i] = m * (xy[i] - self._detection_margin / 2)
             trim_xy[i] = min(max(0, trim_xy[i]), 1)
+        self.origin = trim_xy * self.screen_resolution
         return trim_xy * self.screen_resolution
 
-    def move_pointer_to_hand_world(self, hand_center):
+    def handle_pointer(self, hand_center, hand_pose):
         screen_xy = self.to_screen_coordinates(hand_center)
-        pyautogui.moveTo(screen_xy[0], screen_xy[1], _pause=False)
+        if hand_pose == HandyMouseController.Event.MOVE or hand_pose == HandyMouseController.Event.LEFT_DOWN:
+            delta = screen_xy - self.previous_position
+            pyautogui.move(delta[0], delta[1], _pause=False)
+        self.previous_position = screen_xy
 
     def accessible_area(self, image):
         xmin = int(self._detection_margin / 2 * image.shape[1])
@@ -99,14 +105,14 @@ class HandyMouseController:
         if self.current_mouse_state == HandyMouseController.MouseState.STANDARD:
             self._on_pose_change_standard(new_hand_pose)
         if self.current_mouse_state == HandyMouseController.MouseState.SCROLLING:
-            self._on_pose_change_scrolling(new_hand_pose)
+            self._on_pause_change_other(new_hand_pose, HandyMouseController.Event.SCROLL, HandyMouseController.MouseState.STANDARD)
         if self.current_mouse_state == HandyMouseController.MouseState.DRAGGING:
-            self._on_pose_change_dragging(new_hand_pose)       
+            self._on_pause_change_other(new_hand_pose, HandyMouseController.Event.LEFT_DOWN, HandyMouseController.MouseState.STANDARD)
 
     def _on_pose_change_standard(self, new_hand_pose):
         if new_hand_pose == self.Event.MOVE:
             pass
-        elif new_hand_pose == Hand.Pose.CLOSE: #TODO: change here
+        elif new_hand_pose == Hand.Pose.CLOSE:
             pass
         elif new_hand_pose == self.Event.LEFT_CLICK:
             self.left_click()
@@ -117,13 +123,9 @@ class HandyMouseController:
         elif new_hand_pose == self.Event.SCROLL:
             self.enter_state(HandyMouseController.MouseState.SCROLLING)
 
-    def _on_pose_change_scrolling(self, new_hand_pose):
-        if new_hand_pose != self.Event.SCROLL:
-            self.enter_state(HandyMouseController.MouseState.STANDARD)
-
-    def _on_pose_change_dragging(self, new_hand_pose):
-        if new_hand_pose != self.Event.LEFT_DOWN:
-            self.enter_state(HandyMouseController.MouseState.STANDARD)
+    def _on_pause_change_other(self, new_hand_pose, reference_hand_pose, target_state):
+        if new_hand_pose != reference_hand_pose:
+            self.enter_state(target_state)
 
     def left_click(self):
         pyautogui.leftClick(_pause=False)
@@ -136,16 +138,16 @@ class HandyMouseController:
         # Mouse in STANDARD mode
         if self.current_mouse_state == HandyMouseController.MouseState.STANDARD:
 
-            # Move the mouse
-            if hand.pose == HandyMouseController.Event.MOVE:
-                self.move_pointer_to_hand_world(palm_center)
+            # Move the pointer or make it still
+            if hand.pose == HandyMouseController.Event.MOVE or hand.pose == HandyMouseController.Event.STOP:
+                self.handle_pointer(palm_center, hand.pose)
                 self.previous_hand_pose = hand.pose
 
             # Hand pose changed: perform the appropriate action
             elif hand.pose != self.previous_hand_pose and confidence > min_confidence:
                 self._on_pose_change(hand.pose)
                 self.previous_hand_pose = hand.pose
-        
+
         # Mouse in SCROLLING mode
         elif self.current_mouse_state == HandyMouseController.MouseState.SCROLLING:
 
@@ -170,13 +172,17 @@ class HandyMouseController:
         # Mouse in DRAGGING mode
         elif self.current_mouse_state == HandyMouseController.MouseState.DRAGGING:
 
-            # Get the reference position (origin) when scrolling begins (first frame)
+            # Begin dragging
             if self.current_state_init == self.frame - 1:
                 pyautogui.mouseDown(_pause=False)
+            
+            # Stop dragging if hand pose changed
             elif hand.pose != self.previous_hand_pose and confidence > min_confidence:
                 pyautogui.mouseUp(_pause=False)
                 self._on_pose_change(hand.pose)
                 self.previous_hand_pose = hand.pose
+            
+            # Move the pointer like in standard mode with dragging enabled
             else:
-                self.move_pointer_to_hand_world(palm_center)
+                self.handle_pointer(palm_center, hand.pose)
                 self.previous_hand_pose = hand.pose
