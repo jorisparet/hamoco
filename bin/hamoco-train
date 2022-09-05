@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-#TODO: fill automaticallly the default values by loading the default model
-
 import argparse
 
 from hamoco import ClassificationModel

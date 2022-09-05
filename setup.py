@@ -14,7 +14,12 @@ args = dict(name='hamoco',
             long_description=readme,
             author='Joris Paret',
             author_email='joris.paret@gmail.com',
+            maintainer='Joris Paret',
+            url='https://github.com/jorisparet/hamoco',
+            keywords=['mouse', 'controller', 'webcam', 'hand',
+                      'deep learning', 'neural network'],
             packages=['hamoco',
+                      'hamoco/config',
                       'hamoco/core',
                       'hamoco/models',
                       'hamoco/utils'],
@@ -24,10 +29,14 @@ args = dict(name='hamoco',
             license='GPLv3',
             classifiers=[
                 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-                'Development Status :: 3 - Alpha',
+                'Development Status :: 5 - Production/Stable',
                 'Topic :: Scientific/Engineering :: Human Machine Interfaces',
                 'Topic :: Scientific/Engineering :: Image Recognition',
-                'Programming Language :: Python :: 3']
+                'Programming Language :: Python :: 3',
+                'Operating System :: POSIX :: Linux',
+                'Operating System :: Microsoft :: Windows',
+                'Intended Audience :: End Users/Desktop',
+                'Natural Language :: English']
 )
 
 setup(**args)

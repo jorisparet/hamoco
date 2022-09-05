@@ -1,2 +1,2 @@
 include hamoco/models/*
-include hamoco/utils/*
+include hamoco/config/*.json
