@@ -57,20 +57,24 @@ Run these applications directly in the terminal, *e.g.* `hamoco-run --sensitivit
 
 ### hamoco-run
 
-*hamoco-run* is the **main application**. It activates the webcam and allows to use hand gestures to take control of the mouse pointer. Several basic actions can then be performed, such as *left click*, *right click*, *drag and drop* and *scrolling*. Various settings can be adjusted to customize the hand controller to your liking, such as the global sensivitity and parameters for motion smoothing. Type `--help` for more information on the available options.
+*hamoco-run* is the **main application**. It activates the webcam and allows to use hand gestures to take control of the mouse pointer. Several basic actions can then be performed, such as *left click*, *right click*, *drag and drop* and *scrolling*. Various settings can be adjusted to customize the hand controller to your liking, such as the global sensivitity and parameters for motion smoothing. Type `hamoco-run --help` for more information on the available options.
 
 Examples:
 - `hamoco-run --sensitivity 0.4 --scrolling_threshold 0.2` : adapts the sensitivity and sets a custom threshold value to trigger scrolling motions.
 - `hamoco-run --min_cutoff_filter 0.05 --show` : sets a custom value for the cutoff frequency used for motion smoothing and opens a window that shows the processed video feed in real-time.
 - `hamoco-run --scrolling_speed 20` : sets a custom value for the scrolling speed. Note that for a given value, results may differ significantly depending on the operating system.
 
+Configuration files with default values for the control parameters can be found in the installation folder, under `hamoco/config/`. Simply edit the file that corresponds to your operating system (`posix.json` for Linux and `nt.json` for Windows) to save your settings permanently, and hence avoid specifying the parameters by hand in the terminal.
+
 **Hand poses & Mouse actions:**
-- `OPEN` : the pointer is free and follows the center of the palm (indicated by the white empty square) ;
-- `CLOSE` : the pointer stops all actions ;
+- `OPEN` : the pointer is free and follows the center of the palm (indicated by the white square) ;
+- `CLOSE` : the pointer stops all actions. The hand can be moved anywhere in the frame without moving the pointer. This is used to reset the origin of motion (see the *nota bene* below) ;
 - `INDEX_UP` : performs a left-click at the current pointer location. Execute twice rapidly for a double-click ;
 - `PINKY_UP` : performs a right click at the current pointer location ;
 - `INDEX_MIDDLE_UP` : holds the left mouse button down and moves the pointer by following the center of the palm. This is used for selection and drag & drop ;
 - `THUMB_SIDE` : enables vertical scrolling using the first triggering location as origin. Scrolling up or down is done by moving the hand up or down relative to the origin while keeping the same hand pose ;
+
+**N.B.** note that, much like a real mouse, the recorded motion of the pointer is *relative* to its previous position. When your mouse reaches the edge of your mouse pad, you simply lift it and land it back somewhere on the pad to start moving again. Similarly, if your hand reaches the edge of the frame, the pointer will stop moving: simply close your fist and move it back into the frame to reset the origin of motion (exactly like when lifting and moving a real mouse).
 
 The various hand poses are illustrated below:
 
@@ -78,19 +82,20 @@ The various hand poses are illustrated below:
 
 ### hamoco-data
 
-*hamoco-data* activates the webcam and allows to record your own labeled data for hand poses in order to train a custom NN-based classification model for the main application. This model can then be used in place of the one provided by default and will be more performant, as it will be trained on your personal and natural hand poses (see *[hamoco-train](#hamoco-train)*). Type `--help` for more information on the available options.
+*hamoco-data* activates the webcam and allows to record your own labeled data for hand poses in order to train a custom neural-network-based classification model for the main application. This model can then be used in place of the one provided by default and will be more performant, as it will be trained on your personal and natural hand poses (see *[hamoco-train](#hamoco-train)*). Type `hamoco-data --help` for more information on the available options.
 
 This application requires two arguments:
-- `pose`: a string that indicates the type of hand pose you intend to record. It should be one of {*OPEN, CLOSE, INDEX_UP, PINKY_UP, THUMB_SIDE, INDEX_MIDDLE_UP*}.
+- `pose`: a string that indicates the type of hand pose you intend to record. It should be one of: `OPEN`, `CLOSE`, `INDEX_UP`, `PINKY_UP`, `THUMB_SIDE`, `INDEX_MIDDLE_UP`.
 - `path_to_data`: path to the folder inside of which you want the recorded data to be saved.
 
 Examples:
-- `hamoco-data OPEN data/ --delay 1.0` : starts the recording for the *OPEN* hand pose, stores the resulting data in the `data` folder (provided it exists!), and takes a new snapshot every second.
-- `hamoco-data INDEX_UP data/ --delay 0.25 --images` : starts the recording for the *INDEX_UP* hand pose, stores the resulting data in the `data` folder, takes a new snapshot every 0.25s, and saves the images (in addition to the numeric data file used for training the model). Saving images can be useful if you want to manually check if your hand was in a correct position when its numerical data was recorded, and hence keep or remove specific data files accordingly.
+- `hamoco-data OPEN data/ --delay 1.0` : starts the recording for the `OPEN` hand pose, stores the resulting data in the `data` folder (provided it exists!), and takes a new snapshot every second.
+- `hamoco-data INDEX_UP data/ --delay 0.25 --images` : starts the recording for the `INDEX_UP` hand pose, stores the resulting data in the `data` folder, takes a new snapshot every 0.25s, and saves the images (in addition to the numeric data file used for training the model). Saving images can be useful if you want to manually check if your hand was in a correct position when its numerical data was recorded, and hence keep or remove specific data files accordingly.
+- `hamoco-data CLOSE data/ --reset --stop_after 200` : starts the recording of the `CLOSE` hand pose, stores the resulting data in the `data` folder, deletes every previously recorded file for this hand pose, and automatically stop the recording after taking 200 snapshots.
 
 ### hamoco-train
 
-Provided a path to a directory with compatible data, *hamoco-train* trains a customizable NN-based classification model to predict a hand pose. This classification model can then be used in the main application in place of the one provided by default. Type `--help` for more information on the available options.
+Provided a path to a directory with compatible data, *hamoco-train* trains a customizable NN-based classification model to predict a hand pose. This classification model can then be used in the main application in place of the one provided by default. Type `hamoco-train --help` for more information on the available options.
 
 This application requires two arguments:
 - `path_to_model` : path to save the newly trained model.
@@ -100,9 +105,9 @@ Examples:
 - `hamoco-train my_custom_model.h5 data/ --hiden_layers 50 25 --epochs 20` : trains and save a model named `my_custom_model.h5` that contains two hidden layers (with dimensions 50 and 25 respectively) over 20 epochs, by using the compatible data in the `data` folder.
 - `hamoco-train my_custom_model.h5 data/ --epochs 10 --learning_rate 0.1` : trains and save a model named `my_custom_model.h5` with default dimensions over 20 epochs and with a learning rate of 0.1, by using the compatible data in the `data` folder.
 
-Your model can then be used in the main application with the `--model` flag of *[hamoco-run](#hamoco-run)*, *e.g.* `hamoco-run --model <path_to_your_model>`.
+Your model can then be used in the main application with the `--model` flag of *[hamoco-run](#hamoco-run)*, *e.g.* `hamoco-run --model <path_to_your_model>` , or you can change the `.json` configuration file to point to it.
 
 Author
 ------
 
-[Joris Paret](https://jorisparet.github.io/)
+[Joris Paret](www.jorisparet.com)
