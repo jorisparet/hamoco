@@ -36,11 +36,15 @@ parser.add_argument('path_to_data',
                     help='Path to the directory that will store the recorded data')
 parser.add_argument('-R', '--reset',
                     action='store_true',
-                    help='Remove any previously recorded data for the specified hand pose before recording.')
-parser.add_argument('--delay',
+                    help='Remove any previously recorded data for the specified hand pose before recording')
+parser.add_argument('-d', '--delay',
                     type=float,
                     default=0.5,
                     help='Delay between consecutives snapshots')
+parser.add_argument('-S', '--stop_after',
+                    type=int,
+                    default=None,
+                    help='Max. number of snapshots to stop the recording')
 parser.add_argument('-i', '--images',
                     action='store_true',
                     help='Path to the directory that will store the recorded data')
@@ -53,6 +57,7 @@ pose_name = args.pose
 path_to_data = args.path_to_data
 reset = args.reset
 delay_between_snapshots = args.delay
+stop_after = args.stop_after
 save_images = args.images
 record = not(args.test)
 
@@ -130,5 +135,5 @@ with mp_hands.Hands(static_image_mode=False,
 
         # Display the image (stop if ESC key is pressed)
         cv2.imshow(__window_name__, image)
-        if cv2.waitKey(5) & 0xFF == 27:
+        if cv2.waitKey(5) & 0xFF == 27 or  snapshot_index >= stop_after:
             break
