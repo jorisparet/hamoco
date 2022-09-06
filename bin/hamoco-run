@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# TODO: add an optional overlay frame with PyQt that shows the edges in real time
+# TODO: add more complex actions (e.g. copy, cut, paste) with the second hand
+
 import argparse
 import json
 

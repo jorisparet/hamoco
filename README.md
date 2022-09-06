@@ -18,7 +18,7 @@ In the example below, the hand is used to move the pointer, open a file by doubl
 
 ### How does it work?
 
-By using the power of [PyAutoGUI](https://pypi.org/project/PyAutoGUI/) to control the mouse, [openCV](https://pypi.org/project/opencv-python/) to process the video feed, and [MediaPipe](https://google.github.io/mediapipe/) to track hands, **hamoco** predicts the nature of a hand pose in real-time thanks to a neural network and uses it to perform various kinds of mouse pointer actions.
+By using the power of [PyAutoGUI](https://pypi.org/project/PyAutoGUI/) to control the mouse, [OpenCV](https://pypi.org/project/opencv-python/) to process the video feed, and [MediaPipe](https://google.github.io/mediapipe/) to track hands, **hamoco** predicts the nature of a hand pose in real-time thanks to a neural network built with [Keras](https://keras.io/) and uses it to perform various kinds of mouse pointer actions.
 
 Installation
 ------------
@@ -38,7 +38,7 @@ pip install .
 
 * [PyAutoGUI](https://pypi.org/project/PyAutoGUI/)
 * [NumPy](https://pypi.org/project/numpy/)
-* [openCV](https://pypi.org/project/opencv-python/)
+* [OpenCV](https://pypi.org/project/opencv-python/)
 * [MediaPipe](https://google.github.io/mediapipe/)
 * [TensorFlow](https://www.tensorflow.org)
 
