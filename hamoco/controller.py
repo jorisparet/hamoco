@@ -4,12 +4,14 @@ import pyautogui
 import numpy
 
 from .hand import Hand
+from .utils import clamp
 from .filter import OneEuroFilter
 
 class HandyMouseController:
 
+    sensitivity_range = 1.5
     min_detection_margin = 0.15
-    max_detection_margin = 0.85
+    max_detection_margin = 0.50
 
     @enum.unique
     class MouseState(enum.IntEnum):
@@ -26,8 +28,9 @@ class HandyMouseController:
         SCROLL = Hand.Pose.THUMB_SIDE
         LEFT_DOWN = Hand.Pose.INDEX_MIDDLE_UP
 
-    def __init__(self, sensitivity=0.5, scrolling_threshold=0.1, scrolling_speed=1.0, min_cutoff_filter=0.1, beta_filter=0.0):
-        self._set_sensitivity(sensitivity)
+    def __init__(self, sensitivity=0.5, margin=0.25, scrolling_threshold=0.1, scrolling_speed=1.0, min_cutoff_filter=0.1, beta_filter=0.0):        
+        self.sensitivity = sensitivity
+        self.margin = margin
         self.scrolling_threshold = scrolling_threshold
         self.scrolling_speed = scrolling_speed
         # Motion smoothing
@@ -45,17 +48,31 @@ class HandyMouseController:
 
     @property
     def sensitivity(self):
-        return self._sensitivity
+        # Visible sensitivity is between 0 and 1
+        range_ = HandyMouseController.sensitivity_range
+        return (self._sensitivity + range_ / 2) / range_
 
     @sensitivity.setter
     def sensitivity(self, value):
-        self._set_sensitivity(value)
-        
-    def _set_sensitivity(self, value):
-        self._sensitivity = value
+        # Internal sensitivity is between -range/2 and +range/2
+        value = clamp(value, 0, 1)
+        range_ = HandyMouseController.sensitivity_range
+        self._sensitivity = range_ * value - (range_ / 2)
+
+    @property
+    def margin(self):
+        # Visible margin is between 0 and 1
         max_margin = HandyMouseController.max_detection_margin
         min_margin = HandyMouseController.min_detection_margin
-        self._detection_margin = (max_margin - min_margin) * value + min_margin
+        return (self._margin - min_margin) / (max_margin - min_margin)
+
+    @margin.setter
+    def margin(self, value):
+        # Internal margin is between min_margin and max_margin
+        value = clamp(value, 0, 1)
+        max_margin = HandyMouseController.max_detection_margin
+        min_margin = HandyMouseController.min_detection_margin
+        self._margin = (max_margin - min_margin) * value + min_margin    
 
     def palm_center(self, landmark_vector):
         self.frame += 1
@@ -77,9 +94,9 @@ class HandyMouseController:
 
     def to_screen_coordinates(self, xy):
         trim_xy = numpy.empty_like(xy)
-        m = 1 / (1 - self._detection_margin)
+        m = 1 / (1 - self.margin)
         for i in range(2):
-            trim_xy[i] = m * (xy[i] - self._detection_margin / 2)
+            trim_xy[i] = m * (xy[i] - self.margin / 2)
             trim_xy[i] = min(max(0, trim_xy[i]), 1)
         self.origin = trim_xy * self.screen_resolution
         return trim_xy * self.screen_resolution
@@ -87,13 +104,13 @@ class HandyMouseController:
     def handle_pointer(self, hand_center, hand_pose):
         screen_xy = self.to_screen_coordinates(hand_center)
         if hand_pose == HandyMouseController.Event.MOVE or hand_pose == HandyMouseController.Event.LEFT_DOWN:
-            delta = screen_xy - self.previous_position
+            delta = (1 + self._sensitivity) * (screen_xy - self.previous_position)
             pyautogui.move(delta[0], delta[1], _pause=False)
         self.previous_position = screen_xy
 
     def accessible_area(self, image):
-        xmin = int(self._detection_margin / 2 * image.shape[1])
-        ymin = int(self._detection_margin / 2 * image.shape[0])
+        xmin = int(self.margin / 2 * image.shape[1])
+        ymin = int(self.margin / 2 * image.shape[0])
         xmax = image.shape[1] - xmin
         ymax = image.shape[0] - ymin
         return [xmin, ymin, xmax, ymax]

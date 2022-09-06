@@ -1,5 +1,6 @@
 {
-    "sensitivity": 0.3,
+    "sensitivity": 0.5,
+    "margin": 0.25,
     "scrolling_threshold": 0.1,
     "scrolling_speed": 1.0,
     "min_cutoff_filter": 0.01,

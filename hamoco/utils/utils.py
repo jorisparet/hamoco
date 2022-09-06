@@ -9,6 +9,11 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
+def clamp(value, min_value, max_value):
+    value = max(value, min_value)
+    value = min(value, max_value)
+    return value
+
 def draw_hand_landmarks(image, hand_landmark):
     mp_drawing.draw_landmarks(image, 
         hand_landmark,

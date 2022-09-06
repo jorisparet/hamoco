@@ -24,8 +24,8 @@ class Test(unittest.TestCase):
 
         # Controller
         controller = HandyMouseController(sensitivity=0.15)
-        controller.sensitivity = 0.25
-        self.assertEqual(controller.sensitivity, 0.25)
+        controller.sensitivity = 1.5
+        self.assertEqual(controller.sensitivity, 1.0) # value is clamped
 
         model = ClassificationModel()
         event_sequence = ['OPEN',

@@ -40,6 +40,10 @@ parser.add_argument('-S', '--sensitivity',
                     default=default_config['sensitivity'], 
                     type=float, 
                     help='Mouse sensitivity (between 0 and 1)')
+parser.add_argument('-M', '--margin', 
+                    default=default_config['margin'], 
+                    type=float, 
+                    help='Detection margin at the edges of the frame (between 0 and 1)')
 parser.add_argument('--scrolling_threshold', 
                     default=default_config['scrolling_threshold'], 
                     type=float, 
@@ -70,6 +74,7 @@ parser.add_argument('--show',
 args = parser.parse_args()
 # Custom variables linked to parser
 sensitivity = args.sensitivity
+margin = args.margin
 scrolling_threshold = args.scrolling_threshold
 scrolling_speed = args.scrolling_speed
 min_cutoff_filter = args.min_cutoff_filter
@@ -84,6 +89,7 @@ trained_model = keras.models.load_model(path_to_model)
 
 # Hand controller
 hand_controller = HandyMouseController(sensitivity=sensitivity,
+                                       margin=margin,
                                        scrolling_threshold=scrolling_threshold,
                                        scrolling_speed=scrolling_speed,
                                        min_cutoff_filter=min_cutoff_filter,
