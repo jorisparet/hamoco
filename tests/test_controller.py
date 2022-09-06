@@ -4,9 +4,13 @@ import unittest
 import os
 
 from hamoco import Hand, HandyMouseController, ClassificationModel
-from hamoco.utils import draw_palm_center, draw_control_bounds, write_pose
+from hamoco.utils import draw_palm_center, draw_control_bounds, write_pose, draw_scrolling_origin
 import numpy
 import cv2
+
+# Allow mouse to go on the border of the screen
+import pyautogui
+pyautogui.FAILSAFE = False
 
 class Test(unittest.TestCase):
 
@@ -28,10 +32,15 @@ class Test(unittest.TestCase):
                           'CLOSE',
                           'THUMB_SIDE',
                           'THUMB_SIDE',
+                          'THUMB_SIDE',
                           'CLOSE',
                           'OPEN',
+                          'CLOSE',
                           'PINKY_UP',
                           'CLOSE',
+                          'INDEX_UP',
+                          'CLOSE',
+                          'INDEX_MIDDLE_UP',
                           'INDEX_MIDDLE_UP',
                           'INDEX_MIDDLE_UP',
                           'CLOSE']
@@ -58,6 +67,9 @@ class Test(unittest.TestCase):
             draw_control_bounds(phony_image, bounds)
             draw_palm_center(phony_image, palm_center, size=20)
             write_pose(phony_image, hand.pose.name)
+            # Draw scrolling origin
+            if controller.current_mouse_state == HandyMouseController.MouseState.SCROLLING:
+                draw_scrolling_origin(phony_image, controller.scrolling_origin, controller.scrolling_threshold)
             
 if __name__ == '__main':
     unittest.main()

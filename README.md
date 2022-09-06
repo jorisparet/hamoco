@@ -1,15 +1,14 @@
 <p align="center">
 <a href="https://github.com/jorisparet/hamoco"><img src="https://raw.githubusercontent.com/jorisparet/hamoco/main/images/logo.svg" width="250"></a>
 </p>
-
 [![version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://pypi.python.org/pypi/partycls/)
 [![license](https://img.shields.io/pypi/l/partycls.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License)
 [![build](https://github.com/jorisparet/hamoco/actions/workflows/build-test.yml/badge.svg)](https://github.com/jorisparet/hamoco/actions/workflows/build-test.yml)
-![coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)
 
 # Hamoco
 
-**hamoco** (*handy mouse controller*) is a python application that allows you to control your mouse from your webcam using various hand gestures. You have a laptop equiped with a webcam? Well, good news, that's all you need to feel like Tom Cruise in [Minority Report](https://en.wikipedia.org/wiki/Minority_Report_(film))! Kind of.
+**hamoco** (*handy mouse controller*) is a python application that allows you to control your mouse from your webcam using various hand gestures. You have a laptop equipped with a webcam? Well, good news, that's all you need to feel like Tom Cruise in [Minority Report](https://en.wikipedia.org/wiki/Minority_Report_(film))! Kind of.
 
 ### Demonstration
 
