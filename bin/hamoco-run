@@ -5,6 +5,7 @@
 
 import argparse
 import json
+from collections import deque
 
 import cv2
 import mediapipe as mp
@@ -71,6 +72,11 @@ parser.add_argument('-m', '--model',
 parser.add_argument('--show',
                     action='store_'+str(not default_config['show']).lower(),
                     help='Real-time display of the processed camera feed')
+parser.add_argument('--stop_sequence',
+                    nargs='+',
+                    type=str,
+                    default=default_config['stop_sequence'],
+                    help='Sequence of consecutive poses to stop the application')
 args = parser.parse_args()
 # Custom variables linked to parser
 sensitivity = args.sensitivity
@@ -82,6 +88,15 @@ beta_filter = args.beta_filter
 minimum_prediction_confidence = args.minimum_prediction_confidence
 model = args.model
 show_feed = args.show
+stop_sequence_litteral = args.stop_sequence
+
+# Prepare stop sequence
+stop_sequence = []
+for pose in stop_sequence_litteral:
+    stop_sequence.append(Hand.Pose[pose])
+stop_sequence = deque(stop_sequence, maxlen=len(stop_sequence))
+consecutive_poses = deque(maxlen=stop_sequence.maxlen)
+previous_pose = Hand.Pose.UNDEFINED
 
 # Load classification model
 path_to_model = __default_model__ if model is None else model
@@ -134,11 +149,21 @@ with mp_hands.Hands(static_image_mode=False,
             predicted_pose = numpy.argmax(probabilities)
             hand.pose = Hand.Pose(predicted_pose)
 
+            # Update consecutive poses queue for stop sequence
+            if hand.pose != previous_pose:
+                consecutive_poses.append(hand.pose)
+                previous_pose = hand.pose
+
             # Perform the appropriate mouse action
             hand_controller.operate_mouse(hand, 
                                           palm_center,
                                           prediction_confidence,
                                           min_confidence=minimum_prediction_confidence)
+
+        # Stop sequence
+        if consecutive_poses == stop_sequence:
+            print('# hamoco: stop sequence detected. Exiting the application...')
+            break
 
         # Show the camera feed
         if show_feed:
