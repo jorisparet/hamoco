@@ -94,9 +94,9 @@ class HandyMouseController:
 
     def to_screen_coordinates(self, xy):
         trim_xy = numpy.empty_like(xy)
-        m = 1 / (1 - self.margin)
+        m = 1 / (1 - self._margin)
         for i in range(2):
-            trim_xy[i] = m * (xy[i] - self.margin / 2)
+            trim_xy[i] = m * (xy[i] - self._margin / 2)
             trim_xy[i] = min(max(0, trim_xy[i]), 1)
         self.origin = trim_xy * self.screen_resolution
         return trim_xy * self.screen_resolution
@@ -109,8 +109,8 @@ class HandyMouseController:
         self.previous_position = screen_xy
 
     def accessible_area(self, image):
-        xmin = int(self.margin / 2 * image.shape[1])
-        ymin = int(self.margin / 2 * image.shape[0])
+        xmin = int(self._margin / 2 * image.shape[1])
+        ymin = int(self._margin / 2 * image.shape[0])
         xmax = image.shape[1] - xmin
         ymax = image.shape[0] - ymin
         return [xmin, ymin, xmax, ymax]

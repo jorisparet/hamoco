@@ -20,7 +20,7 @@ class Hand:
     palm_landmarks = [0, 5, 9, 13, 17]
 
     # Dimension: only look at X and Y for landmarks (discard Z)
-    # If Z must be added at some points, changes will be minor
+    # If Z must be added at some point, changes will be minor
     dimension = 2
 
     def __init__(self, pose=None):
@@ -35,19 +35,20 @@ class Hand:
                 self.pose = self.Pose[pose]
 
     def vectorize_landmarks(self, landmarks):
-        landmarks_vector = numpy.array([0.0 for i in range(self.dimension * len(landmarks))])
+        landmarks_vector = numpy.zeros(self.dimension * len(landmarks))
         for lm_i, landmark in enumerate(landmarks):
             landmarks_vector[self.dimension*lm_i] = landmark.x
             landmarks_vector[self.dimension*lm_i+1] = landmark.y
         return landmarks_vector
 
     def feature_process_landmarks(self, landmarks_vector):
+        processed_landmarks = landmarks_vector.copy()
         for axis in range(self.dimension):
             # Translate center of mass back to origin
-            landmarks_vector[axis::self.dimension] -= landmarks_vector[axis::self.dimension].mean()
+            processed_landmarks[axis::self.dimension] -= processed_landmarks[axis::self.dimension].mean()
             # Make scale invariant
-            landmarks_vector[axis::self.dimension] /= landmarks_vector[axis::self.dimension].std()
-        return landmarks_vector.reshape(1,-1)
+            processed_landmarks[axis::self.dimension] /= processed_landmarks[axis::self.dimension].std()
+        return processed_landmarks.reshape(1,-1)
 
 class HandSnapshot:
 
@@ -61,7 +62,7 @@ class HandSnapshot:
     def save_processed_image(self, image, path=None):
         '''Save image with landmarks on them.'''
         if path is None:
-            path = 'defaut_name'
+            path = 'hand_snapshot'
         cv2.imwrite(f'{path}.jpg', image)
 
     def save_landmarks_vector(self, landmarks, path=None):

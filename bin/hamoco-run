@@ -149,7 +149,7 @@ with mp_hands.Hands(static_image_mode=False,
 
             # Show palm center
             if hand_detected:
-                draw_palm_center(image, palm_center, size=20)
+                draw_palm_center(image, palm_center, size=0.03)
                 write_pose(image, hand.pose.name)
 
             # Draw scrolling origin

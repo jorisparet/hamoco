@@ -21,13 +21,14 @@ def draw_hand_landmarks(image, hand_landmark):
         mp_drawing_styles.get_default_hand_landmarks_style(),
         mp_drawing_styles.get_default_hand_connections_style())
 
-def draw_palm_center(image, palm_center, color_BGR=(255,255,255), size=20):
+def draw_palm_center(image, palm_center, color_BGR=(255,255,255), size=0.05):
     height, width, _ = image.shape
-    size = size // 2
+    size = int((size * height) / 2)
+    # size = size // 2
     cursor_xy = (palm_center * numpy.array([width, height])).astype(int)
     cv2.rectangle(image, tuple(cursor_xy - size), 
                         tuple(cursor_xy + size),
-                        color_BGR, -1)
+                        color_BGR, thickness=-1)
 
 def draw_control_bounds(image, bounds):
     # Bounds
@@ -63,10 +64,10 @@ def draw_scrolling_origin(image, origin, threshold, color_BGR=(0,255,0), line_th
     cv2.putText(image, 'Scroll up', (text_margin[0], top-text_margin[1]), font, font_size, color_BGR, thickness=2)
     cv2.putText(image, 'Scroll down', (text_margin[0], bottom+v_offset), font, font_size, color_BGR, thickness=2)
 
-def write_pose(image, pose, color_BGR=(0, 255, 0), thickness=2, margin=(5,10)):
-    height, width, _ = image.shape
+def write_pose(image, pose, color_BGR=(0, 255, 0), thickness=2, font_size=1, margin=(5,10)):
+    height, _, _ = image.shape
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(image, f'Pose: {pose}', (margin[0], height-margin[1]), font, 1, color_BGR, thickness=thickness)
+    cv2.putText(image, f'Pose: {pose}', (margin[0], height-margin[1]), font, font_size, color_BGR, thickness=thickness)
 
 def train_test_split(X, y, test_size=0.0, seed=None):
     # Seed
