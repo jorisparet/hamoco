@@ -3,3 +3,4 @@
 omit =
      *__init__*
      *_version*
+     hamoco/cli/*
