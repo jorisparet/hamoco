@@ -1,11 +1,10 @@
 <p align="center">
 <a href="https://github.com/jorisparet/hamoco"><img src="https://raw.githubusercontent.com/jorisparet/hamoco/main/images/logo.svg" width="250"></a>
 </p>
-
 [![version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://pypi.python.org/pypi/partycls/)
 [![license](https://img.shields.io/pypi/l/partycls.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License)
 [![build](https://github.com/jorisparet/hamoco/actions/workflows/build-test.yml/badge.svg)](https://github.com/jorisparet/hamoco/actions/workflows/build-test.yml)
-![coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-97%25-brightgreen)
 
 # Hamoco
 
@@ -54,7 +53,7 @@ The default folder should be under `/home/<user>/.local/bin/`. Make sure this lo
 
 #### Windows
 
-The default folder should be under `C:\Users\<user>\AppData\Local\Programs\Python\<python_version>\Scripts\`. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to be able to run the scripts from the console. If not, type the following command `set PATH=%PATH%;C:\path\to\hamoco\scripts\` in the console, or select `Edit the system environment variables` (*e.g.* from the search bar), click `Environment Variables…`, click `PATH`, click `Edit...` and add the correct path to the scripts.
+The default folder should be under `C:\Users\<user>\AppData\Local\Programs\Python\<python_version>\Scripts\`. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to be able to run the scripts from the console. If not, type the following command `set PATH=%PATH%;C:\path\to\hamoco\scripts\` in the console, or select `Edit the system environment variables` in the search bar, click `Environment Variables…`, click `PATH`, click `Edit...` and add the correct path to the scripts.
 
 ### Requirements:
 
@@ -73,7 +72,7 @@ Quick start
 
 ### hamoco-run
 
-*hamoco-run* is the **main application**. It activates the webcam and allows to use hand gestures to take control of the mouse pointer. Several basic actions can then be performed, such as *left click*, *right click*, *drag and drop* and *scrolling*. Various settings can be adjusted to customize the hand controller to your liking, such as the global sensivitity and parameters for motion smoothing. Type `hamoco-run --help` for more information on the available options.
+*hamoco-run* is the **main application**. It activates the webcam and allows to use hand gestures to take control of the mouse pointer. Several basic actions can then be performed, such as *left click*, *right click*, *drag and drop* and *scrolling*. Note that it requires **a bit of practice** before getting comfortable with the controls. Various settings can be adjusted to customize the hand controller to your liking, such as the global sensivitity, parameters for motion smoothing and much more. Type `hamoco-run --help` for more information on the available options.
 
 Examples:
 - `hamoco-run --sensitivity 0.4 --scrolling_threshold 0.2` : adapts the sensitivity and sets a custom threshold value to trigger scrolling motions.
@@ -96,13 +95,13 @@ Configuration files with default values for the control parameters can be found 
 
 The various hand poses are illustrated below:
 
-![](https://raw.githubusercontent.com/jorisparet/hamoco/main/images/hand_poses.png)
+![](https://raw.githubusercontent.com/jorisparet/hamoco/main/images/hand_poses.jpg)
 
 #### Exiting the application:
 
 There are two ways to exit the application:
 
-1. In the preview mode (`--show` option enabled), simply click on the preview windows and press `ESC` ;
+1. In the preview mode (`--show` option enabled), simply click on the preview window and press `ESC` ;
 2. Execute a predetermined sequence of consecutive hand poses. The default sequence can be found in the help message (`hamoco-run --help`). A new sequence can be specified with the `--stop_sequence` option followed by the consecutive hand poses, or it can simply be changed in the `.json` configuration file.
 
 ### hamoco-data
