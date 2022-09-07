@@ -48,13 +48,13 @@ The installation copies three scripts in the default script folder of `pip`:
 2. `hamoco-data`
 3. `hamoco-train`
 
-##### Linux:
+#### Linux
 
 The default folder should be under `/home/<user>/.local/bin/`. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to be able to run the scripts from the console. If not, type the following command `export PATH=$PATH:/path/to/hamoco/scripts/` in the console or add it your `.bashrc` file.
 
-##### Windows:
+#### Windows
 
-The default folder should be under `C:\Users\<user>\AppData\Local\Programs\Python\<python_version>\Scripts\`. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to be able to run the scripts from the console. If not, type the following command `set PATH=%PATH%;C:\correct\path\to\scripts\` in the console, or select `Edit the system environment variables` (*e.g.* from the search bar), click `Environment Variables…`, click `PATH`, click `Edit...` and add the correct path to the scripts.
+The default folder should be under `C:\Users\<user>\AppData\Local\Programs\Python\<python_version>\Scripts\`. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to be able to run the scripts from the console. If not, type the following command `set PATH=%PATH%;C:\path\to\hamoco\scripts\` in the console, or select `Edit the system environment variables` (*e.g.* from the search bar), click `Environment Variables…`, click `PATH`, click `Edit...` and add the correct path to the scripts.
 
 ### Requirements:
 
@@ -69,9 +69,9 @@ Quick start
 
 ### Running the scripts
 
-**hamoco** is composed of three executable scripts: [*hamoco-run*](#hamoco-run), [*hamoco-data*](#hamoco-data), and [*hamoco-train*](#hamoco-train), that are listed below. Run these scripts directly from the console, *e.g.* `hamoco-run --sensitivity 0.5 --show`.
+**hamoco** is composed of three executable scripts: *[hamoco-run](#hamoco-run)*, *[hamoco-data](#hamoco-data)*, and *[hamoco-train](#hamoco-train)*, that are listed below. Run these scripts directly from the console, *e.g.* `hamoco-run --sensitivity 0.5 --show`.
 
-### 1. hamoco-run
+### hamoco-run
 
 *hamoco-run* is the **main application**. It activates the webcam and allows to use hand gestures to take control of the mouse pointer. Several basic actions can then be performed, such as *left click*, *right click*, *drag and drop* and *scrolling*. Various settings can be adjusted to customize the hand controller to your liking, such as the global sensivitity and parameters for motion smoothing. Type `hamoco-run --help` for more information on the available options.
 
@@ -83,7 +83,7 @@ Examples:
 
 Configuration files with default values for the control parameters can be found in the installation folder, under `hamoco/config/`. Simply edit the file that corresponds to your operating system (`posix.json` for **Linux** and `nt.json` for **Windows**) to save your settings permanently, and hence avoid specifying the parameters by hand in the console.
 
-##### Hand poses & Mouse actions:
+#### Hand poses & Mouse actions:
 
 - `OPEN` : the pointer is free and follows the center of the palm (indicated by the white square) ;
 - `CLOSE` : the pointer stops all actions. The hand can be moved anywhere in the frame without moving the pointer. This is used to reset the origin of motion (see the *nota bene* below) ;
@@ -98,14 +98,14 @@ The various hand poses are illustrated below:
 
 ![](https://raw.githubusercontent.com/jorisparet/hamoco/main/images/hand_poses.png)
 
-##### Exiting the application:
+#### Exiting the application:
 
 There are two ways to exit the application:
 
 1. In the preview mode (`--show` option enabled), simply click on the preview windows and press `ESC` ;
 2. Execute a predetermined sequence of consecutive hand poses. The default sequence can be found in the help message (`hamoco-run --help`). A new sequence can be specified with the `--stop_sequence` option followed by the consecutive hand poses, or it can simply be changed in the `.json` configuration file.
 
-### 2. hamoco-data
+### hamoco-data
 
 *hamoco-data* activates the webcam and allows to record your own labeled data for hand poses in order to train a custom neural-network-based classification model for the main application. This model can then be used in place of the one provided by default and will be more performant, as it will be trained on your personal and natural hand poses (see *[hamoco-train](#hamoco-train)*). Type `hamoco-data --help` for more information on the available options.
 
@@ -118,7 +118,7 @@ Examples:
 - `hamoco-data INDEX_UP data/ --delay 0.25 --images` : starts the recording for the `INDEX_UP` hand pose, stores the resulting data in the `data` folder, takes a new snapshot every 0.25s, and saves the images (in addition to the numeric data file used for training the model). Saving images can be useful if you want to manually check if your hand was in a correct position when its numerical data was recorded, and hence keep or remove specific data files accordingly.
 - `hamoco-data CLOSE data/ --reset --stop_after 200` : starts the recording of the `CLOSE` hand pose, stores the resulting data in the `data` folder, deletes every previously recorded file for this hand pose, and automatically stop the recording after taking 200 snapshots.
 
-### 2. hamoco-train
+### hamoco-train
 
 Provided a path to a directory with compatible data, *hamoco-train* trains a customizable NN-based classification model to predict a hand pose. This classification model can then be used in the main application in place of the one provided by default. Type `hamoco-train --help` for more information on the available options.
 
