@@ -146,7 +146,7 @@ def main():
 
                 # Predict hand pose
                 processed_landmark_vector = hand.feature_process_landmarks(raw_landmark_vector)
-                probabilities = trained_model.predict(processed_landmark_vector).flatten()
+                probabilities = trained_model.predict(processed_landmark_vector, verbose=0).flatten()
                 prediction_confidence = numpy.max(probabilities)
                 predicted_pose = numpy.argmax(probabilities)
                 hand.pose = Hand.Pose(predicted_pose)
