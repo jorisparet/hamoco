@@ -48,7 +48,13 @@ The installation copies three scripts in the default script folder of `pip`:
 2. `hamoco-data`
 3. `hamoco-train`
 
-By default, this folder should be under `/home/<user>/.local/bin/` for **Linux** and under `LocalAppData\Programs\Python\<Python_version>\` for **Windows**. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to run them from the console.
+##### Linux:
+
+The default folder should be under `/home/<user>/.local/bin/`. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to be able to run the scripts from the console. If not, type the following command `export PATH=$PATH:/path/to/hamoco/scripts/` in the console or add it your `.bashrc` file.
+
+##### Windows:
+
+The default folder should be under `C:\Users\<user>\AppData\Local\Programs\Python\<python_version>\Scripts\`. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to be able to run the scripts from the console. If not, type the following command `set PATH=%PATH%;C:\correct\path\to\scripts\` in the console, or select `Edit the system environment variables` (*e.g.* from the search bar), click `Environment Variables…`, click `PATH`, click `Edit...` and add the correct path to the scripts.
 
 ### Requirements:
 
