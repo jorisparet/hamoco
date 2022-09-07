@@ -2,7 +2,7 @@
     "sensitivity": 0.5,
     "margin": 0.25,
     "scrolling_threshold": 0.1,
-    "scrolling_speed": 20.0,
+    "scrolling_speed": 40.0,
     "min_cutoff_filter": 0.01,
     "beta_filter": 10.0,
     "minimum_prediction_confidence": 0.8,
