@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-#TODO: Add a way to stop the recording (e.g. provide the max number of snapshots)
-
 import os
 import time
 import argparse

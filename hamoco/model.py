@@ -1,4 +1,5 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # disable tensorflow warning message for CPU-only installation
 
 import numpy
 import keras
