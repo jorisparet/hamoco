@@ -24,7 +24,15 @@ By using the power of [PyAutoGUI](https://pypi.org/project/PyAutoGUI/) to contro
 Installation
 ------------
 
-From the [code repository](https://github.com/jorisparet/hamoco):
+**1.** From [PyPI](https://pypi.org/project/hamoco/):
+
+```bash
+pip install hamoco
+```
+
+----------
+
+**2.** From the [code repository](https://github.com/jorisparet/hamoco):
 
 ```
 git clone https://github.com/jorisparet/hamoco
@@ -33,7 +41,14 @@ pip install -r requirements.txt
 pip install .
 ```
 
-*The package will be published on [PyPI](https://pypi.org/) at a later stage of development.*
+----------
+
+The installation copies three scripts in the default script folder of `pip`:
+1. `hamoco-run`
+2. `hamoco-data`
+3. `hamoco-train`
+
+By default, this folder should be under `/home/<user>/.local/bin/` for **Linux** and under `LocalAppData\Programs\Python\<Python_version>\` for **Windows**. Make sure this location (or the correct one, if different) is included in your `$PATH` environment variable to run them from the console.
 
 ### Requirements:
 
@@ -46,16 +61,11 @@ pip install .
 Quick start
 -----------
 
-After the installation, the package should have copied three binaries in the `.local/bin/` folder of your home directory:
-1. `hamoco-run`
-2. `hamoco-data`
-3. `hamoco-train`
+### Running the scripts
 
-(*Make sure this location is included in your `$PATH` environment variable*)
+**hamoco** is composed of three executable scripts: [*hamoco-run*](#hamoco-run), [*hamoco-data*](#hamoco-data), and [*hamoco-train*](#hamoco-train), that are listed below. Run these scripts directly from the console, *e.g.* `hamoco-run --sensitivity 0.5 --show`.
 
-Run these applications directly in the terminal, *e.g.* `hamoco-run --sensitivity 0.5 --show`.
-
-### hamoco-run
+### 1. hamoco-run
 
 *hamoco-run* is the **main application**. It activates the webcam and allows to use hand gestures to take control of the mouse pointer. Several basic actions can then be performed, such as *left click*, *right click*, *drag and drop* and *scrolling*. Various settings can be adjusted to customize the hand controller to your liking, such as the global sensivitity and parameters for motion smoothing. Type `hamoco-run --help` for more information on the available options.
 
@@ -63,10 +73,12 @@ Examples:
 - `hamoco-run --sensitivity 0.4 --scrolling_threshold 0.2` : adapts the sensitivity and sets a custom threshold value to trigger scrolling motions.
 - `hamoco-run --min_cutoff_filter 0.05 --show` : sets a custom value for the cutoff frequency used for motion smoothing and opens a window that shows the processed video feed in real-time.
 - `hamoco-run --scrolling_speed 20` : sets a custom value for the scrolling speed. Note that for a given value, results may differ significantly depending on the operating system.
+- `hamoco-run --margin 0.2 --stop_sequence THUMB_SIDE CLOSE INDEX_MIDDLE_UP` : adapts the size of the detection margin (indicated by the dark frame in the preview windows using `--show`), and changes the sequence of consecutive poses to stop the application.
 
-Configuration files with default values for the control parameters can be found in the installation folder, under `hamoco/config/`. Simply edit the file that corresponds to your operating system (`posix.json` for Linux and `nt.json` for Windows) to save your settings permanently, and hence avoid specifying the parameters by hand in the terminal.
+Configuration files with default values for the control parameters can be found in the installation folder, under `hamoco/config/`. Simply edit the file that corresponds to your operating system (`posix.json` for **Linux** and `nt.json` for **Windows**) to save your settings permanently, and hence avoid specifying the parameters by hand in the console.
 
-**Hand poses & Mouse actions:**
+##### Hand poses & Mouse actions:
+
 - `OPEN` : the pointer is free and follows the center of the palm (indicated by the white square) ;
 - `CLOSE` : the pointer stops all actions. The hand can be moved anywhere in the frame without moving the pointer. This is used to reset the origin of motion (see the *nota bene* below) ;
 - `INDEX_UP` : performs a left-click at the current pointer location. Execute twice rapidly for a double-click ;
@@ -80,7 +92,14 @@ The various hand poses are illustrated below:
 
 ![](https://raw.githubusercontent.com/jorisparet/hamoco/main/images/hand_poses.png)
 
-### hamoco-data
+##### Exiting the application:
+
+There are two ways to exit the application:
+
+1. In the preview mode (`--show` option enabled), simply click on the preview windows and press `ESC` ;
+2. Execute a predetermined sequence of consecutive hand poses. The default sequence can be found in the help message (`hamoco-run --help`). A new sequence can be specified with the `--stop_sequence` option followed by the consecutive hand poses, or it can simply be changed in the `.json` configuration file.
+
+### 2. hamoco-data
 
 *hamoco-data* activates the webcam and allows to record your own labeled data for hand poses in order to train a custom neural-network-based classification model for the main application. This model can then be used in place of the one provided by default and will be more performant, as it will be trained on your personal and natural hand poses (see *[hamoco-train](#hamoco-train)*). Type `hamoco-data --help` for more information on the available options.
 
@@ -93,7 +112,7 @@ Examples:
 - `hamoco-data INDEX_UP data/ --delay 0.25 --images` : starts the recording for the `INDEX_UP` hand pose, stores the resulting data in the `data` folder, takes a new snapshot every 0.25s, and saves the images (in addition to the numeric data file used for training the model). Saving images can be useful if you want to manually check if your hand was in a correct position when its numerical data was recorded, and hence keep or remove specific data files accordingly.
 - `hamoco-data CLOSE data/ --reset --stop_after 200` : starts the recording of the `CLOSE` hand pose, stores the resulting data in the `data` folder, deletes every previously recorded file for this hand pose, and automatically stop the recording after taking 200 snapshots.
 
-### hamoco-train
+### 2. hamoco-train
 
 Provided a path to a directory with compatible data, *hamoco-train* trains a customizable NN-based classification model to predict a hand pose. This classification model can then be used in the main application in place of the one provided by default. Type `hamoco-train --help` for more information on the available options.
 
