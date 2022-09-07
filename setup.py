@@ -7,7 +7,7 @@ with open('README.md', 'r') as fh:
 
 with open('hamoco/core/_version.py') as f:
     exec(f.read())
-
+    
 args = dict(name='hamoco',
             version=__version__,
             description='Mouse control via webcam-recorded hand gestures',
@@ -30,7 +30,7 @@ args = dict(name='hamoco',
                           ['hamoco-run = hamoco.cli.hamoco_run:main',
                            'hamoco-data = hamoco.cli.hamoco_data:main',
                            'hamoco-train = hamoco.cli.hamoco_train:main']},
-            install_requires=['pyautogui', 'numpy', 'opencv-python', 'mediapipe', 'keras'],
+            install_requires=['pyautogui', 'numpy', 'opencv-python', 'mediapipe', 'tensorflow'],
             license='GPLv3',
             classifiers=[
                 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
