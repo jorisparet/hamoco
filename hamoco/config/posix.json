@@ -8,5 +8,5 @@
     "minimum_prediction_confidence": 0.8,
     "model": null,
     "show": false,
-    "stop_sequence": ["THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP"]
+    "stop_sequence": ["THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP"]
 }
