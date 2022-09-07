@@ -11,3 +11,4 @@ custom/*
 env
 build
 hamoco.egg-info
+dist
