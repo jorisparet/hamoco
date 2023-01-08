@@ -43,6 +43,10 @@ def main():
                         default=default_config['sensitivity'], 
                         type=float, 
                         help='Mouse sensitivity (between 0 and 1)')
+    parser.add_argument('-d', '--device',
+                        default=default_config['device'],
+                        type=int,
+                        help='Camera device index to be used')
     parser.add_argument('-M', '--margin', 
                         default=default_config['margin'], 
                         type=float, 
@@ -82,6 +86,7 @@ def main():
     args = parser.parse_args()
     # Custom variables linked to parser
     sensitivity = args.sensitivity
+    device = args.device
     margin = args.margin
     scrolling_threshold = args.scrolling_threshold
     scrolling_speed = args.scrolling_speed
@@ -113,7 +118,7 @@ def main():
                                         beta_filter=beta_filter)
 
     # Webcam input
-    capture = cv2.VideoCapture(0)
+    capture = cv2.VideoCapture(device)
     with mp_hands.Hands(static_image_mode=False,
                         model_complexity=1,
                         max_num_hands=1,
