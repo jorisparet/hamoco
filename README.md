@@ -129,7 +129,7 @@ This application requires two arguments:
 
 Examples:
 - `hamoco-train my_custom_model.h5 data/ --hiden_layers 50 25 --epochs 20` : trains and save a model named `my_custom_model.h5` that contains two hidden layers (with dimensions 50 and 25 respectively) over 20 epochs, by using the compatible data in the `data` folder.
-- `hamoco-train my_custom_model.h5 data/ --epochs 10 --learning_rate 0.1` : trains and save a model named `my_custom_model.h5` with default dimensions over 20 epochs and with a learning rate of 0.1, by using the compatible data in the `data` folder.
+- `hamoco-train my_custom_model.h5 data/ --epochs 10 --learning_rate 0.1` : trains and save a model named `my_custom_model.h5` with default dimensions over 10 epochs and with a learning rate of 0.1, by using the compatible data in the `data` folder.
 
 Your model can then be used in the main application with the `--model` flag of *[hamoco-run](#hamoco-run)*, *e.g.* `hamoco-run --model <path_to_your_model>` , or you can change the `.json` configuration file to point to it.
 
