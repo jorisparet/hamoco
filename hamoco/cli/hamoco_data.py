@@ -47,7 +47,7 @@ def main():
                         help='Max. number of snapshots to stop the recording')
     parser.add_argument('-i', '--images',
                         action='store_true',
-                        help='Path to the directory that will store the recorded data')
+                        help='Save the images corresponding to the training data')
     parser.add_argument('-t', '--test',
                         action='store_true',
                         help='Do not save the data and only show real-time information about hand detection')
