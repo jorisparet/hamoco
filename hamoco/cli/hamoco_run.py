@@ -43,6 +43,10 @@ def main():
                         default=default_config['sensitivity'], 
                         type=float, 
                         help='Mouse sensitivity (between 0 and 1)')
+    parser.add_argument('-V', '--view',
+                        default=default_config['view'],
+                        type=str,
+                        help='View type: "front" (palm facing to the camera) or "top-down" (back of the hand facing the camera)')
     parser.add_argument('-d', '--device',
                         default=default_config['device'],
                         type=int,
@@ -86,6 +90,7 @@ def main():
     args = parser.parse_args()
     # Custom variables linked to parser
     sensitivity = args.sensitivity
+    view = args.view
     device = args.device
     margin = args.margin
     scrolling_threshold = args.scrolling_threshold
@@ -106,7 +111,7 @@ def main():
     previous_pose = Hand.Pose.UNDEFINED
 
     # Load classification model
-    path_to_model = __default_model__ if model is None else model
+    path_to_model = __default_model__[view] if model is None else model
     trained_model = keras.models.load_model(path_to_model)
 
     # Hand controller
