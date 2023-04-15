@@ -1,6 +1,7 @@
 {
     "sensitivity": 0.5,
     "view": "front",
+    "controller": "front",
     "device": 0,
     "margin": 0.25,
     "scrolling_threshold": 0.1,

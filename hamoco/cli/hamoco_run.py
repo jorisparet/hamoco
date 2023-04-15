@@ -13,7 +13,8 @@ import pyautogui
 import keras
 import numpy
 
-from hamoco import Hand, HandyMouseController
+from hamoco import Hand
+from hamoco.controller import HandyMouseController, VerticalMouseController, FrontMouseController
 from hamoco.models import __default_model__
 from hamoco.utils import draw_hand_landmarks, draw_palm_center, draw_control_bounds, draw_scrolling_origin
 from hamoco.utils import write_pose, __window_name__
@@ -43,10 +44,10 @@ def main():
                         default=default_config['sensitivity'], 
                         type=float, 
                         help='Mouse sensitivity (between 0 and 1)')
-    parser.add_argument('-V', '--view',
-                        default=default_config['view'],
+    parser.add_argument('-c', '--controller',
+                        default=default_config['controller'],
                         type=str,
-                        help='View type: "front" (palm facing to the camera) or "top-down" (back of the hand facing the camera)')
+                        help='Front controller ("front") or vertical controller ("vertical")')
     parser.add_argument('-d', '--device',
                         default=default_config['device'],
                         type=int,
@@ -90,7 +91,7 @@ def main():
     args = parser.parse_args()
     # Custom variables linked to parser
     sensitivity = args.sensitivity
-    view = args.view
+    selected_controller = args.controller
     device = args.device
     margin = args.margin
     scrolling_threshold = args.scrolling_threshold
@@ -111,16 +112,20 @@ def main():
     previous_pose = Hand.Pose.UNDEFINED
 
     # Load classification model
-    path_to_model = __default_model__[view] if model is None else model
+    path_to_model = __default_model__ if model is None else model
     trained_model = keras.models.load_model(path_to_model)
 
+    # Controllers
+    controllers = {'front': FrontMouseController,
+                   'vertical': VerticalMouseController}
+
     # Hand controller
-    hand_controller = HandyMouseController(sensitivity=sensitivity,
-                                        margin=margin,
-                                        scrolling_threshold=scrolling_threshold,
-                                        scrolling_speed=scrolling_speed,
-                                        min_cutoff_filter=min_cutoff_filter,
-                                        beta_filter=beta_filter)
+    hand_controller = controllers[selected_controller](sensitivity=sensitivity,
+                                                       margin=margin,
+                                                       scrolling_threshold=scrolling_threshold,
+                                                       scrolling_speed=scrolling_speed,
+                                                       min_cutoff_filter=min_cutoff_filter,
+                                                       beta_filter=beta_filter)
 
     # Webcam input
     capture = cv2.VideoCapture(device)
@@ -133,7 +138,7 @@ def main():
         # Detect hand movement while the video capture is on
         while capture.isOpened():
             success, image = capture.read()
-            image = cv2.flip(image, 1)
+            image = cv2.flip(image, hand_controller.flip)
 
             if not success:
                 print('Ignoring empty camera frame.')
@@ -168,9 +173,9 @@ def main():
 
                 # Perform the appropriate mouse action
                 hand_controller.operate_mouse(hand, 
-                                            palm_center,
-                                            prediction_confidence,
-                                            min_confidence=minimum_prediction_confidence)
+                                              palm_center,
+                                              prediction_confidence,
+                                              min_confidence=minimum_prediction_confidence)
 
             # Stop sequence
             if consecutive_poses == stop_sequence:

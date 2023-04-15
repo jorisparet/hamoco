@@ -5,11 +5,8 @@ import os
 
 # Default model
 models_dir = os.path.dirname(os.path.abspath(__file__))
-default_model = {'front': 'front_model.h5',
-                 'top-down': 'top-down_model.h5'}
-__default_model__ = dict()
-for view, model_file in default_model.items():
-    __default_model__[view] = os.path.join(models_dir, model_file)
+default_model = 'default_model.h5'
+__default_model__ = os.path.join(models_dir, default_model)
 
 def _check_file_name(name):
     check = True
