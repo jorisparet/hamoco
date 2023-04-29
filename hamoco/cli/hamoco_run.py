@@ -40,6 +40,10 @@ def main():
     gestures to take control of the mouse pointer. Several basic actions can then
     be performed, such as left click, right click, drag and drop and scrolling.""".replace('\n',' ')
     parser.description = description
+    parser.add_argument('--motion', 
+                        default=default_config['motion'], 
+                        type=str,
+                        help='Motion type ("relative" or "absolute")')
     parser.add_argument('-S', '--sensitivity', 
                         default=default_config['sensitivity'], 
                         type=float, 
@@ -52,7 +56,7 @@ def main():
                         default=default_config['device'],
                         type=int,
                         help='Camera device index to be used')
-    parser.add_argument('-M', '--margin', 
+    parser.add_argument('--margin', 
                         default=default_config['margin'], 
                         type=float, 
                         help='Detection margin at the edges of the frame (between 0 and 1)')
@@ -76,7 +80,7 @@ def main():
                         default=default_config['minimum_prediction_confidence'], 
                         type=float, 
                         help='Minimum prediction confidence for predicting hand poses')
-    parser.add_argument('-m', '--model', 
+    parser.add_argument('--model', 
                         default=default_config['model'],
                         type=str,
                         help='Path to the Keras model to use for hand pose prediction')
@@ -90,6 +94,7 @@ def main():
                         help='Sequence of consecutive poses to stop the application')
     args = parser.parse_args()
     # Custom variables linked to parser
+    motion = args.motion
     sensitivity = args.sensitivity
     selected_controller = args.controller
     device = args.device
@@ -120,7 +125,8 @@ def main():
                    'vertical': VerticalMouseController}
 
     # Hand controller
-    hand_controller = controllers[selected_controller](sensitivity=sensitivity,
+    hand_controller = controllers[selected_controller](motion=motion,
+                                                       sensitivity=sensitivity,
                                                        margin=margin,
                                                        scrolling_threshold=scrolling_threshold,
                                                        scrolling_speed=scrolling_speed,
@@ -192,7 +198,8 @@ def main():
                 # Show palm center
                 if hand_detected:
                     draw_palm_center(image, palm_center, size=0.03)
-                    write_pose(image, hand.pose.name)
+                    if selected_controller == 'front':
+                        write_pose(image, hand.pose.name)
 
                 # Draw scrolling origin
                 if hand_controller.current_mouse_state == HandyMouseController.MouseState.SCROLLING:

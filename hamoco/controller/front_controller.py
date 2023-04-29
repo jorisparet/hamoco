@@ -10,13 +10,16 @@ class FrontMouseController(HandyMouseController):
     flip = 1
 
     def __init__(self,
+                 motion='relative',
                  sensitivity=0.5,
                  margin=0.25,
                  scrolling_threshold=0.1,
                  scrolling_speed=1.0,
                  min_cutoff_filter=0.1,
                  beta_filter=0.0):
-        HandyMouseController.__init__(self, sensitivity=sensitivity,
+        HandyMouseController.__init__(self,
+                                      motion=motion,
+                                      sensitivity=sensitivity,
                                       margin=margin, 
                                       scrolling_threshold=scrolling_threshold,
                                       scrolling_speed=scrolling_speed,
@@ -77,11 +80,14 @@ class FrontMouseController(HandyMouseController):
                 self.handle_pointer(palm_center, hand.pose)
                 self.previous_hand_pose = hand.pose
 
-    def handle_pointer(self, hand_center, hand_pose):
-        screen_xy = self.to_screen_coordinates(hand_center)
+    def handle_pointer(self, tracking_point, hand_pose):
+        screen_xy = self.to_screen_coordinates(tracking_point)
         if hand_pose == HandyMouseController.Event.MOVE or hand_pose == HandyMouseController.Event.LEFT_DOWN:
-            delta = (1 + self._sensitivity) * (screen_xy - self.previous_position)
-            pyautogui.move(delta[0], delta[1], _pause=False)
+            if self.motion == 'relative':
+                delta = (1 + self._sensitivity) * (screen_xy - self.previous_position)
+                pyautogui.move(delta[0], delta[1], _pause=False)
+            if self.motion == 'absolute':
+                pyautogui.moveTo(screen_xy[0], screen_xy[1], _pause=False)
         self.previous_position = screen_xy
 
     def _on_pose_change(self, new_hand_pose):

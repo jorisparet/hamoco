@@ -29,7 +29,20 @@ class HandyMouseController:
         SCROLL = Hand.Pose.THUMB_SIDE
         LEFT_DOWN = Hand.Pose.INDEX_MIDDLE_UP
 
-    def __init__(self, sensitivity=0.5, margin=0.25, scrolling_threshold=0.1, scrolling_speed=1.0, min_cutoff_filter=0.1, beta_filter=0.0):        
+    def __init__(self,
+                 motion='relative',
+                 sensitivity=0.5,
+                 margin=0.25,
+                 scrolling_threshold=0.1,
+                 scrolling_speed=1.0,
+                 min_cutoff_filter=0.1,
+                 beta_filter=0.0):
+        # Type of motion
+        self.motion = motion.lower()
+        if self.motion not in ['relative', 'absolute']:
+            raise ValueError(f'Incorrect motion type "{self.motion}".')
+        print(self.motion)
+        # Motion parameters
         self.sensitivity = sensitivity
         self.margin = margin
         self.scrolling_threshold = scrolling_threshold
@@ -80,7 +93,7 @@ class HandyMouseController:
         center = numpy.zeros(2)
         for axis in range(2):
             # Palm center
-            center[axis] = landmark_vector[axis::2][Hand.palm_landmarks].mean()
+            center[axis] = landmark_vector[axis::2][Hand.tracking_landmarks].mean()
             # Smoothing
             center[axis] = self.filter[axis](self.frame, center[axis])
         return center
