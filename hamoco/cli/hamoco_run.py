@@ -184,7 +184,7 @@ def main():
                                               min_confidence=minimum_prediction_confidence)
 
             # Stop sequence
-            if consecutive_poses == stop_sequence:
+            if selected_controller == 'front' and consecutive_poses == stop_sequence:
                 print('# hamoco: stop sequence detected. Exiting the application...')
                 break
 
