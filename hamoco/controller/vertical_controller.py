@@ -27,9 +27,9 @@ class VerticalMouseController(HandyMouseController):
                                       beta_filter=beta_filter)
         self.tracking_landmarks = tracking_landmarks
 
-    def operate_mouse(self, hand, palm_center, confidence, min_confidence=0.5):
+    def operate_mouse(self, hand, tracking_point, confidence, min_confidence=0.5):
         # TODO: remove prediction confidence for this controller
-        self.handle_pointer(palm_center)
+        self.handle_pointer(tracking_point)
         self.previous_hand_pose = hand.pose
 
     def handle_pointer(self, hand_center):

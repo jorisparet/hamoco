@@ -29,14 +29,14 @@ class FrontMouseController(HandyMouseController):
                                       beta_filter=beta_filter)
         self.tracking_landmarks = tracking_landmarks
         
-    def operate_mouse(self, hand, palm_center, confidence, min_confidence=0.5):
+    def operate_mouse(self, hand, tracking_point, confidence, min_confidence=0.5):
 
         # Mouse in STANDARD mode
         if self.current_mouse_state == HandyMouseController.MouseState.STANDARD:
 
             # Move the pointer or make it still
             if hand.pose == HandyMouseController.Event.MOVE or hand.pose == HandyMouseController.Event.STOP:
-                self.handle_pointer(palm_center, hand.pose)
+                self.handle_pointer(tracking_point, hand.pose)
                 self.previous_hand_pose = hand.pose
 
             # Hand pose changed: perform the appropriate action
@@ -52,11 +52,11 @@ class FrontMouseController(HandyMouseController):
 
                 # Get the reference position (origin) when scrolling begins (first frame)
                 if self.current_state_init == self.frame - 1:
-                    self.scrolling_origin = palm_center[1]
+                    self.scrolling_origin = tracking_point[1]
                 # Scroll up/down if above/below a certain distance threshold with
                 #  respect to the scrolling origin point (next frames)
                 else:
-                    diff_to_origin_y = self.scrolling_origin - palm_center[1]
+                    diff_to_origin_y = self.scrolling_origin - tracking_point[1]
                     if abs(diff_to_origin_y) > self.scrolling_threshold:
                         pyautogui.scroll(int(numpy.sign(diff_to_origin_y) * self.scrolling_speed), _pause=False)
 
@@ -80,7 +80,7 @@ class FrontMouseController(HandyMouseController):
             
             # Move the pointer like in standard mode with dragging enabled
             else:
-                self.handle_pointer(palm_center, hand.pose)
+                self.handle_pointer(tracking_point, hand.pose)
                 self.previous_hand_pose = hand.pose
 
     def handle_pointer(self, tracking_point, hand_pose):
