@@ -6,11 +6,13 @@ import pyautogui
 
 class FrontMouseController(HandyMouseController):
 
+    name = 'front'
     # Image flip
     flip = 1
 
     def __init__(self,
                  motion='relative',
+                 tracking_landmarks=[0, 5, 9, 13, 17],
                  sensitivity=0.5,
                  margin=0.25,
                  scrolling_threshold=0.1,
@@ -25,6 +27,7 @@ class FrontMouseController(HandyMouseController):
                                       scrolling_speed=scrolling_speed,
                                       min_cutoff_filter=min_cutoff_filter,
                                       beta_filter=beta_filter)
+        self.tracking_landmarks = tracking_landmarks
         
     def operate_mouse(self, hand, palm_center, confidence, min_confidence=0.5):
 

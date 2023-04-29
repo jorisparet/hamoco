@@ -1,7 +1,20 @@
 {
-    "motion": "relative",
+    "controller":
+    {
+        "front":
+        {
+            "motion": "relative",
+            "tracking_landmarks": [0, 5, 9, 13, 17],
+            "stop_sequence": ["THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP"]
+        },
+        "vertical":
+        {
+            "motion": "absolute",
+            "tracking_landmarks": [1, 5],
+            "stop_sequence": null
+        }
+    },
     "sensitivity": 0.5,
-    "controller": "front",
     "device": 0,
     "margin": 0.25,
     "scrolling_threshold": 0.1,
@@ -10,6 +23,5 @@
     "beta_filter": 10.0,
     "minimum_prediction_confidence": 0.8,
     "model": null,
-    "show": false,
-    "stop_sequence": ["THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP", "THUMB_SIDE", "INDEX_UP"]
+    "show": false
 }

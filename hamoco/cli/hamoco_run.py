@@ -40,18 +40,15 @@ def main():
     gestures to take control of the mouse pointer. Several basic actions can then
     be performed, such as left click, right click, drag and drop and scrolling.""".replace('\n',' ')
     parser.description = description
-    parser.add_argument('--motion', 
-                        default=default_config['motion'], 
+    parser.add_argument('-c', '--controller',
+                        choices=[FrontMouseController.name, VerticalMouseController.name],
+                        default=FrontMouseController.name,
                         type=str,
-                        help='Motion type ("relative" or "absolute")')
+                        help='Type of controller')
     parser.add_argument('-S', '--sensitivity', 
                         default=default_config['sensitivity'], 
                         type=float, 
-                        help='Mouse sensitivity (between 0 and 1)')
-    parser.add_argument('-c', '--controller',
-                        default=default_config['controller'],
-                        type=str,
-                        help='Front controller ("front") or vertical controller ("vertical")')
+                        help='Mouse sensitivity (between 0 and 1). For relative motion only.')
     parser.add_argument('-d', '--device',
                         default=default_config['device'],
                         type=int,
@@ -87,14 +84,24 @@ def main():
     parser.add_argument('--show',
                         action='store_'+str(not default_config['show']).lower(),
                         help='Real-time display of the processed camera feed')
+    # Controller-dependent arguments
+    parser.add_argument('--motion', 
+                        choices=['relative', 'absolute'],
+                        type=str,
+                        default=argparse.SUPPRESS,
+                        help=f'[CONTROLLER-DEPENDENT] Motion type (default: {FrontMouseController.name}={default_config["controller"][FrontMouseController.name]["motion"]}, {VerticalMouseController.name}={default_config["controller"][VerticalMouseController.name]["motion"]})')
+    parser.add_argument('-T', '--tracking_landmarks', 
+                        default=argparse.SUPPRESS,
+                        nargs='+',
+                        type=int,
+                        help=f'[CONTROLLER-DEPENDENT] Hand landmarks to use for tracking (default: {FrontMouseController.name}={default_config["controller"][FrontMouseController.name]["tracking_landmarks"]}, {VerticalMouseController.name}={default_config["controller"][VerticalMouseController.name]["tracking_landmarks"]}))')
     parser.add_argument('--stop_sequence',
                         nargs='+',
+                        default=argparse.SUPPRESS,
                         type=str,
-                        default=default_config['stop_sequence'],
-                        help='Sequence of consecutive poses to stop the application')
+                        help=f'[CONTROLLER-DEPENDENT] Sequence of consecutive poses to stop the application (default: {FrontMouseController.name}={default_config["controller"][FrontMouseController.name]["stop_sequence"]}, {VerticalMouseController.name}={default_config["controller"][VerticalMouseController.name]["stop_sequence"]})')
     args = parser.parse_args()
     # Custom variables linked to parser
-    motion = args.motion
     sensitivity = args.sensitivity
     selected_controller = args.controller
     device = args.device
@@ -106,12 +113,21 @@ def main():
     minimum_prediction_confidence = args.minimum_prediction_confidence
     model = args.model
     show_feed = args.show
-    stop_sequence_litteral = args.stop_sequence
+    # Controller-dependent arguments
+    def controller_dependent_argument(args, attr):
+        if not hasattr(args, attr):
+            return default_config["controller"][selected_controller][attr]
+        else:
+            return getattr(args, attr)
+    motion = controller_dependent_argument(args, "motion")
+    tracking_landmarks = controller_dependent_argument(args, "tracking_landmarks")
+    stop_sequence_litteral = controller_dependent_argument(args, "stop_sequence")
 
     # Prepare stop sequence
     stop_sequence = []
-    for pose in stop_sequence_litteral:
-        stop_sequence.append(Hand.Pose[pose])
+    if selected_controller == FrontMouseController.name:
+        for pose in stop_sequence_litteral:
+            stop_sequence.append(Hand.Pose[pose])
     stop_sequence = deque(stop_sequence, maxlen=len(stop_sequence))
     consecutive_poses = deque(maxlen=stop_sequence.maxlen)
     previous_pose = Hand.Pose.UNDEFINED
@@ -121,12 +137,13 @@ def main():
     trained_model = keras.models.load_model(path_to_model)
 
     # Controllers
-    controllers = {'front': FrontMouseController,
-                   'vertical': VerticalMouseController}
+    controllers = {FrontMouseController.name: FrontMouseController,
+                   VerticalMouseController.name: VerticalMouseController}
 
     # Hand controller
     hand_controller = controllers[selected_controller](motion=motion,
                                                        sensitivity=sensitivity,
+                                                       tracking_landmarks=tracking_landmarks,
                                                        margin=margin,
                                                        scrolling_threshold=scrolling_threshold,
                                                        scrolling_speed=scrolling_speed,
@@ -184,7 +201,7 @@ def main():
                                               min_confidence=minimum_prediction_confidence)
 
             # Stop sequence
-            if selected_controller == 'front' and consecutive_poses == stop_sequence:
+            if selected_controller == FrontMouseController.name and consecutive_poses == stop_sequence:
                 print('# hamoco: stop sequence detected. Exiting the application...')
                 break
 
@@ -198,7 +215,7 @@ def main():
                 # Show palm center
                 if hand_detected:
                     draw_palm_center(image, palm_center, size=0.03)
-                    if selected_controller == 'front':
+                    if selected_controller == selected_controller == FrontMouseController.name:
                         write_pose(image, hand.pose.name)
 
                 # Draw scrolling origin

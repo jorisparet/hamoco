@@ -4,11 +4,13 @@ import pyautogui
 
 class VerticalMouseController(HandyMouseController):
 
-    # Imqge flip
+    name = 'vertical'
+    # Image flip
     flip = -1
 
     def __init__(self,
                  motion='absolute',
+                 tracking_landmarks=[1,5],
                  sensitivity=0.5,
                  margin=0.25,
                  scrolling_threshold=0.1, 
@@ -23,11 +25,12 @@ class VerticalMouseController(HandyMouseController):
                                       scrolling_speed=scrolling_speed,
                                       min_cutoff_filter=min_cutoff_filter,
                                       beta_filter=beta_filter)
+        self.tracking_landmarks = tracking_landmarks
 
     def operate_mouse(self, hand, palm_center, confidence, min_confidence=0.5):
-        if confidence > min_confidence:
-            self.handle_pointer(palm_center)
-            self.previous_hand_pose = hand.pose
+        # TODO: remove prediction confidence for this controller
+        self.handle_pointer(palm_center)
+        self.previous_hand_pose = hand.pose
 
     def handle_pointer(self, hand_center):
         screen_xy = self.to_screen_coordinates(hand_center)

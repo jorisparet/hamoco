@@ -16,9 +16,6 @@ class Hand:
         THUMB_SIDE = 4
         INDEX_MIDDLE_UP = 5
 
-    # Indices of palm landmarks in mediapipe hands
-    tracking_landmarks = [5, 9, 13, 17]
-
     # Dimension: only look at X and Y for landmarks (discard Z)
     # If Z must be added at some point, changes will be minor
     dimension = 2
