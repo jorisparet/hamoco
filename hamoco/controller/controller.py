@@ -12,7 +12,7 @@ class HandyMouseController:
     flip = None
     sensitivity_range = 1.5
     min_detection_margin = 0.15
-    max_detection_margin = 0.50
+    max_detection_margin = 0.8
 
     @enum.unique
     class MouseState(enum.IntEnum):
